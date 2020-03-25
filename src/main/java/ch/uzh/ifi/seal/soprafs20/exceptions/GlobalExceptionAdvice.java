@@ -22,9 +22,27 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
 
     @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class})
-    protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleConflictException(RuntimeException ex, WebRequest request) {
         String bodyOfResponse = "This should be application specific";
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+        String message = "AuthenticationException raise UNAUTHORIZED: %s";
+        return formatHelper(ex, message, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException(NotFoundException ex, WebRequest request) {
+        String message = "NotFoundException raise NOT_FOUND: %s";
+        return formatHelper(ex, message, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<Object> handleBadRequestException(ServiceException ex, WebRequest request) {
+        String message = "ServiceException raise BAD_REQUEST: %s";
+        return formatHelper(ex, message, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(TransactionSystemException.class)
@@ -38,5 +56,11 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseStatusException handleException(Exception ex) {
         log.error("Default Exception Handler -> caught:", ex);
         return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+    }
+
+    private ResponseEntity<Object> formatHelper(Exception ex, String message, HttpStatus status, WebRequest request) {
+        log.error("Request: {} raised {} with message {}", request.getDescription(false), String.format(message, ex));
+        String exceptionMessage = String.format(message, ex.getMessage());
+        return handleExceptionInternal(ex, exceptionMessage, new HttpHeaders(), status, request);
     }
 }
