@@ -60,10 +60,9 @@ public class UserControllerTest {
 
     @Test
     public void login() throws Exception{
-        UserPostDTO userPostDTO = new UserPostDTO();
         MockHttpServletRequestBuilder getRequest = get("/user/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(userPostDTO));
+                .header("Authorization", "Basic bAD8AGwAOgBsAPwAbAA=");
 
         mockMvc.perform(getRequest)
                 .andExpect(status().isAccepted());

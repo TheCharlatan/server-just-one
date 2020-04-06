@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -74,7 +77,22 @@ public class UserController {
     @GetMapping("/user/login")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @ResponseBody
-    public UserAuthDTO login(@RequestBody UserPostDTO userPostDTO){
+    public UserAuthDTO login(@RequestHeader("Authorization") String authorizationHeader) {
+        String password;
+        String username;
+        try {
+            String base64Encoded = authorizationHeader.split(" ")[1];
+            byte[] asBytes = Base64.getDecoder().decode(base64Encoded);
+            String base64Decoded = new String(asBytes, StandardCharsets.UTF_16LE);
+            String[] authStrings = base64Decoded.split(":");
+            username = authStrings[0];
+            password = authStrings[1];
+        }
+        catch(Exception e) {
+            throw new AuthenticationException("Unable to decode username and password");
+        }
+        // now call the user service with authStrings[0] and authStrings[1]
+        userService.login(username, password);
         UserAuthDTO userAuthDTO = new UserAuthDTO("supersecrettokenvalue");
         return userAuthDTO;
     }

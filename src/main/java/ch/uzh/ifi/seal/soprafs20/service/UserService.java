@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,17 @@ public class UserService {
 
         log.debug("Created Information for User: {}", newUser);
         return newUser;
+    }
+
+    public String login(String username, String password) {
+        User userByUsername = userRepository.findByUsername(username);
+        if (userByUsername == null) {
+            throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
+        }
+        if (!userByUsername.getPassword().equals(password)) {
+            throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
+        }
+        return userByUsername.getToken();
     }
 
     /**
