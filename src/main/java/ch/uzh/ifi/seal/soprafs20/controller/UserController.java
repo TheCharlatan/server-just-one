@@ -116,8 +116,8 @@ public class UserController {
     @PutMapping("/user/{userId}/invitation")
     @ResponseStatus(HttpStatus.OK)
     public void invitation(@RequestHeader("X-Auth-Token") String token, @PathVariable Long userId, @RequestBody UserPutDTO userPutDTO){
+        userService.invite(userId, userPutDTO.getInvitation());
         return;
-
     }
 
 
