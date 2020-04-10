@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
+import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,9 @@ public class GameControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private GameService gameService;
 
     @Test
     public void createGame() throws Exception {

@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
+import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,15 +24,19 @@ import java.net.URI;
 @RestController
 public class GameController {
 
-    GameController() {
+    private GameService gameService;
+
+    GameController(GameService gameService) {
+        this.gameService = gameService;
     }
 
     @PostMapping("/game")
     public ResponseEntity createGame(@RequestHeader("X-Auth-Token") String token, @RequestBody GamePostDTO gamePostDTO) {
-        //FIXME expand to the created game's id
+        long gameId = gameService.createGame(gamePostDTO.getPlayerIds());
+
         URI location = ServletUriComponentsBuilder
             .fromCurrentRequest()
-            .buildAndExpand("1")
+            .buildAndExpand(String.format("%d", gameId))
             .toUri();
         return ResponseEntity.created(location).build();
     }

@@ -47,7 +47,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseStatusException handleTransactionSystemException(Exception ex, HttpServletRequest request) {
-        log.error("Request: {} raised {}", request.getRequestURL(), ex);
+        log.error("Request: {} raised: {}", request.getRequestURL(), ex.getMessage());
         return new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
     }
 
@@ -59,8 +59,8 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity<Object> formatHelper(Exception ex, String message, HttpStatus status, WebRequest request) {
-        log.error("Request: {} raised {} with message {}", request.getDescription(false), String.format(message, ex));
         String exceptionMessage = String.format(message, ex.getMessage());
+        log.error("Request: {} raised {}", request.getDescription(false), exceptionMessage);
         return handleExceptionInternal(ex, exceptionMessage, new HttpHeaders(), status, request);
     }
 }
