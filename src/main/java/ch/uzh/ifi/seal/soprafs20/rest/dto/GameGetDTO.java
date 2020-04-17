@@ -15,6 +15,21 @@ public class GameGetDTO {
     private Long activePlayerId;
     private List<String> clues;
     private int timestamp;
+    private int wordsGuessedCorrect;
+    private int wordsGuessedWrong;
+    private int cardStackCount;
+    private int cardGuessedCount;
+
+    public int getWordsGuessedCorrect() {return wordsGuessedCorrect;}
+    public int getWordsGuessedWrong() {return wordsGuessedWrong;}
+    public int getCardStackCount() {return cardStackCount;}
+    public int getCardGuessedCount() {return cardGuessedCount;}
+
+    public void setActivePlayerId(Long id){this.activePlayerId = id;}
+    public void setWordsGuessedCorrect(int i) {this.wordsGuessedCorrect = i;}
+    public void setWordsGuessedWrong(int i) {this.wordsGuessedWrong = i;}
+    public void setCardStackCount(int i) {this.cardStackCount = i;}
+    public void setCardGuessedCount(int i) {this.cardGuessedCount = i;}
 
     public Long getId() {
         return id;

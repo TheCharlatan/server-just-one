@@ -54,6 +54,18 @@ public class Game implements Serializable {
     @Column(nullable = false)
     private int timestamp;
 
+    @Column(nullable = false)
+    private int wordsGuessedCorrect;
+
+    @Column(nullable = false)
+    private int wordsGuessedWrong;
+
+    @Column(nullable = false)
+    private int cardStackCount;
+
+    @Column(nullable = false)
+    private int cardGuessedCount;
+
     public Long getId() {
         return id;
     }
@@ -133,4 +145,24 @@ public class Game implements Serializable {
     public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
     }
+
+    public int getWordsGuessedCorrect() {return  wordsGuessedCorrect;}
+
+    public void setWordsGuessedCorrect(int wordsGuessedCorrect) {this.wordsGuessedCorrect = wordsGuessedCorrect;}
+
+    public int getWordsGuessedWrong() {return  wordsGuessedWrong;}
+
+    public void setWordsGuessedWrong(int wordsGuessedWrong) {this.wordsGuessedWrong = wordsGuessedWrong;}
+
+    public int getCardStackCount() {return  cardStackCount;}
+
+    public void setCardStackCount(int cardStackCount) {this.cardStackCount = cardStackCount;}
+
+    public int getCardGuessedCount() {return  cardGuessedCount;}
+
+    public void setCardGuessedCount(int cardGuessedCount) {this.cardGuessedCount = cardGuessedCount;}
+
+
+
+
 }
