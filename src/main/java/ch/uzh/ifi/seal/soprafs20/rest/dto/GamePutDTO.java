@@ -5,7 +5,7 @@ public class GamePutDTO {
     private int wordIndex;
     private String clue;
     private String guess;
-    private boolean guessCorrect;
+    private String guessCorrect;
 
     public int getWordIndex() {
         return wordIndex;
@@ -31,7 +31,7 @@ public class GamePutDTO {
         this.guess = guess;
     }
 
-    public boolean getGuessCorrect() {return guessCorrect;}
+    public String getGuessCorrect() {return guessCorrect;}
 
-    public void setGuessCorrect(Boolean guessCorrect) {this.guessCorrect = guessCorrect; }
+    public void setGuessCorrect(String guessCorrect) {this.guessCorrect = guessCorrect; }
 }
