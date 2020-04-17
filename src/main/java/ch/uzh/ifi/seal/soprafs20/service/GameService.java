@@ -181,26 +181,42 @@ public class GameService {
         Game game = this.gameRepository.findById(id).get();
         String mysteryWord = game.getWords().get(index);
 
+        //Skipped Guess
+        if (guess.equals("SKIP")) {
+            gamePutDTO.setGuessCorrect("skip");
+            //handle according to a skipped guess -> the card is put away
+        }
 
+        //Successful Guess
         if (mysteryWord.equals(guess)) {
-            gamePutDTO.setGuessCorrect(true);
+            gamePutDTO.setGuessCorrect("correct");
+            //set the guesses and card numbers according to a correct guess
+            game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
+            game.setCardGuessedCount(game.getCardGuessedCount() + 1);
+            game.setCardStackCount(game.getCardGuessedCount() - 1);
         }
+        // Wrong Guess
         else {
-            gamePutDTO.setGuessCorrect(false);
+            gamePutDTO.setGuessCorrect("wrong");
+            //Handle according to a wrong guess -> this card and the next card is put away
+
         }
 
+        // call the function "roundEnd" to set all the information needed for a new round
+        //  or wrap up the game if no cards are left on the stack
+        //roundEnd(game);
         return gamePutDTO;
     }
 
     private void roundEnd (Game game) {
         //update the score of the active player
-        //if game.round + 1 is less or equal 13 a new round is started
+        //if cardStackCount != 0 a new round is started
             //choose a new active player
             // provide new list of words
             //update game status
             //reset list of clues
         //else
-            //set game status = "GAME OVER"
+            //set game status == "GAME OVER"
             //
     }
 
