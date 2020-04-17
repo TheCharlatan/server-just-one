@@ -7,6 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,4 +125,34 @@ public class GameService {
         }
         return words;
     }
+    // checks if the mysteryWord matches with the guess
+    public GamePutDTO checkGuess(GamePutDTO gamePutDTO, long id) {
+        int index = gamePutDTO.getWordIndex();
+        String guess = gamePutDTO.getGuess();
+        Game game = this.gameRepository.findById(id).get();
+        String mysteryWord = game.getWords().get(index);
+
+
+        if (mysteryWord.equals(guess)) {
+            gamePutDTO.setGuessCorrect(true);
+        }
+        else {
+            gamePutDTO.setGuessCorrect(false);
+        }
+
+        return gamePutDTO;
+    }
+
+    private void roundEnd (Game game) {
+        //update the score of the active player
+        //if game.round + 1 is less or equal 13 a new round is started
+            //choose a new active player
+            // provide new list of words
+            //update game status
+            //reset list of clues
+        //else
+            //set game status = "GAME OVER"
+            //
+    }
+
 }
