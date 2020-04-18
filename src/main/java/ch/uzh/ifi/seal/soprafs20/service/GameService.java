@@ -124,4 +124,42 @@ public class GameService {
         }
         return words;
     }
+
+    public void chooseWord(long gameId, int wordIndex){
+        Game game = getGame(gameId);
+
+        /*
+        65 words in game wordlist will be divided into 13 cards each containing 5 words.
+
+        set of index no for each card should be (0,1...4),(5,6...9),......(60,61...64)
+        */
+        int generateNewIndex = 5*(game.getRound()-1)-1+wordIndex;
+        /*
+        e.g.
+        input - gameRound 2, wordIndex - 3
+        generateIndex = 5*(2-1)-1+3 = 7
+         */
+        game.setWordIndex(generateNewIndex);
+
+        gameRepository.save(game);
+        gameRepository.flush();
+
+    }
+
+    public void rejectWord(long id){
+        Game game = getGame(id);
+
+        game.setWordIndex(-1);
+        gameRepository.save(game);
+        gameRepository.flush();
+    }
+
+    public Game getGame(long gameId){
+        Game game = gameRepository.getOne(gameId);
+
+        if(game == null){
+            throw new NotFoundException(String.format("Game with %d id is not created",gameId));
+        }
+        return game;
+    }
 }
