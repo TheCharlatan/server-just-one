@@ -39,10 +39,11 @@ public class LobbyController {
         // FIXME expand to the created lobby's id
         Lobby lobby  = DTOMapper.INSTANCE.convertLobbyPostDTOToEntity(lobbyPostDTO);
 
-        lobby = lobbyService.createLobby(lobby);
+        long lobbyId = lobbyService.createLobby(lobby);
+        //lobbyService.addPlayerToLobby(lobbyId,lobbyPostDTO.gethostPlayerId());
         URI location = ServletUriComponentsBuilder
             .fromCurrentRequest()
-            .buildAndExpand("1")
+            .buildAndExpand(String.format("%d",lobbyId))
             .toUri();
         return ResponseEntity.created(location).build();
     }
@@ -60,7 +61,6 @@ public class LobbyController {
     public LobbyGetDTO getLobbyInfo(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
         Lobby lobby = lobbyService.getLobby(id);
         LobbyGetDTO lobbyInfoDTO = DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
-
         return lobbyInfoDTO;
     }
 

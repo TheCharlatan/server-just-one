@@ -41,6 +41,19 @@ public class Lobby implements Serializable {
     @Column
     private int status;
 
+    @Override
+    public String toString() {
+        return "Lobby{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", hostPlayerId=" + hostPlayerId +
+                ", playerIds=" + playerIds +
+                ", chatId=" + chatId +
+                ", gameId=" + gameId +
+                ", status=" + status +
+                '}';
+    }
+
     public Long getHostPlayerId() {
         return hostPlayerId;
     }

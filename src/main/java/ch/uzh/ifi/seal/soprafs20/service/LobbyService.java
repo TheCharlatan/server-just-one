@@ -41,12 +41,16 @@ public class LobbyService {
         this.userRepository = userRepository;
     }
 
-    public Lobby createLobby(Lobby newLobby){
+    public Long createLobby(Lobby newLobby){
 
         checkIfLobbyExist(newLobby);
-        lobbyRepository.save(newLobby);
+        newLobby = lobbyRepository.save(newLobby);
 
-        return newLobby;
+        User user = userRepository.getOne(newLobby.gethostPlayerId());
+        user.setLobbyId(newLobby.getId());
+        userRepository.save(user);
+
+        return newLobby.getId();
 
     }
 
