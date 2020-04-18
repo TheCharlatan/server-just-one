@@ -126,7 +126,7 @@ public class GameService {
     }
 
     public void chooseWord(long gameId, int wordIndex){
-        Game game = getGame(gameId);
+        Game game = getExistingGame(gameId);
 
         /*
         65 words in game wordlist will be divided into 13 cards each containing 5 words.
@@ -147,14 +147,14 @@ public class GameService {
     }
 
     public void rejectWord(long id){
-        Game game = getGame(id);
+        Game game = getExistingGame(id);
 
         game.setWordIndex(-1);
         gameRepository.save(game);
         gameRepository.flush();
     }
 
-    public Game getGame(long gameId){
+    public Game getExistingGame(long gameId){
         Game game = gameRepository.getOne(gameId);
 
         if(game == null){

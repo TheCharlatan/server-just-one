@@ -15,9 +15,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 public class GameServiceTest {
 
@@ -88,6 +90,21 @@ public class GameServiceTest {
         playerIds.add(1L);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         assertThrows(ServiceException.class, () -> gameService.createGame(playerIds));
+    }
+
+    @Test
+    public void chooseWordTest(){
+
+        ArrayList<String> sampleWordList = new ArrayList<>(Arrays.asList("TW0","TW1","TW2","TW3","TW4","TW5","TW6","TW7",
+                "TW8","TW9"));
+        testGame.setRound(2);
+        Mockito.when(gameRepository.getOne(anyLong())).thenReturn(testGame);
+        int wordIndexChoosedByPlayerForRound2 = 2;
+        gameService.chooseWord(testGame.getId(),wordIndexChoosedByPlayerForRound2);
+
+        //In second round, word selected for 2nd position will be at index 2
+        assertEquals(6,testGame.getWordIndex());
+        assertEquals("TW6",sampleWordList.get(testGame.getWordIndex()));
     }
 
     /* These are some tests for the private methods. They are commented sinc private methods cannot be
