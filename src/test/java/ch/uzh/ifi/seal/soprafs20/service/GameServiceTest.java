@@ -137,6 +137,29 @@ public class GameServiceTest {
         assertEquals(gamePutDTOTest.getGuessCorrect(), "correct");
     }
 
+    @Test
+    public void wrapup_playerLeavesGame () {
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        long playerIdLeft = testGame.getPlayerIds().get(1);
+        gameService.wrapup(testGame.getId(), playerIdLeft);
+
+        assertNotSame(playerIdLeft, testGame.getPlayerIds().get(1));
+    }
+
+    @Test
+    public void wrapup_lastPlayerLeavesGame () {
+        Game game = new Game();
+        game.setId(2L);
+        ArrayList<Long> playerIds = new ArrayList<Long>();
+        playerIds.add(0L);
+        game.setPlayerIds(playerIds);
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(game)));
+        long playerIdLeft = game.getPlayerIds().get(0);
+        gameService.wrapup(game.getId(), playerIdLeft);
+
+        assertFalse(gameRepository.existsById(game.getId()));
+    }
+
     /* These are some tests for the private methods. They are commented sinc private methods cannot be
      * tested under normal circumstances and cannot be tested under normal circumstances. They are kept
      * here to still allow some quick implementation testing.

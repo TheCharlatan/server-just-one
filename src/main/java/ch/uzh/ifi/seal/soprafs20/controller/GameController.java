@@ -57,7 +57,7 @@ public class GameController {
             @RequestBody GamePutDTO gamePutDTO) {
 
         gameService.chooseWord(id,gamePutDTO.getWordIndex());
-        
+
     }
 
     @DeleteMapping("/game/{id}/number")
@@ -91,8 +91,7 @@ public class GameController {
     @DeleteMapping("/game/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void wrapup(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
-
-        return;
+    public void wrapup(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody long playerId) {
+        gameService.wrapup(id, playerId);
     }
 }
