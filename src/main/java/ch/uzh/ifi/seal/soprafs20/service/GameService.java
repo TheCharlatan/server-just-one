@@ -226,6 +226,7 @@ public class GameService {
         Game game = gameRepository.findById(id).get();
         //remove the player from the playerId list of the game
         game.getPlayerIds().remove(playerId);
+        
         //if the game is empty because the last player left the game, the game is deleted
         if (game.getPlayerIds().isEmpty()) {
             gameRepository.delete(game);
