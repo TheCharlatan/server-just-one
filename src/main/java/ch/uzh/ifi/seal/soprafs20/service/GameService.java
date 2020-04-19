@@ -8,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,28 @@ public class GameService {
         return gameId;
     }
 
+    public void submitWord(long id, String word) {
+        WordCheck wordChecker = new WordCheck();
+        Game game = gameRepository.findById(id)
+            .orElseThrow(
+                () -> new NotFoundException(String.format("A game with the id %id was not found", id))
+            );
+        if (!wordChecker.checkEnglishWord(word)) {
+            throw new ServiceException("The clue submitted is not an English word");
+        }
+        List<String> clues = game.getClues();
+        if (clues.size() >= game.getPlayerIds().size() - 1) {
+           throw new ServiceException("Too many clues submitted already");
+        }
+        clues.add(word);
+        game.setClues(clues);
+        if (game.getClues().size() >= game.getPlayerIds().size() - 1) {
+           game.setGameStatus(GameStatus.AWAITING_GUESS);
+        }
+        gameRepository.save(game);
+        gameRepository.flush();
+    }
+
     private ArrayList<String> selectGameWords() {
         // select 5 * 13 random unique words from the english word list
         // 5 * 13 from 5 words every round for 13 rounds
@@ -155,30 +178,18 @@ public class GameService {
         gameRepository.flush();
     }
 
-/*    public Game getGame(long gameId) {
-        Game game = gameRepository.getOne(gameId);
-
-        if (game == null) {
-            throw new NotFoundException(String.format("Game with %d id is not created", gameId));
-        }
-        return game;
-    }*/
-
     public Game getExistingGame(Long id) {
-        if(gameRepository.findById(id).isPresent()) {
-            return gameRepository.findById(id).get();
+        if(!gameRepository.findById(id).isPresent()) {
+            throw new NotFoundException(String.format("The game could not be found!", id));
         }
-        else {
-            throw new NotFoundException("The game could not be found!");
-        }
-
+        return gameRepository.findById(id).get();
     }
 
     // checks if the mysteryWord matches with the guess
     public GamePutDTO checkGuess(GamePutDTO gamePutDTO, long id) {
         int index = gamePutDTO.getWordIndex();
         String guess = gamePutDTO.getGuess();
-        Game game = this.gameRepository.findById(id).get();
+        Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
         //Skipped Guess
@@ -223,10 +234,7 @@ public class GameService {
     }
 
     public void wrapup(long id, long playerId) {
-        Game game = gameRepository.findById(id)
-                .orElseThrow(
-                    () -> new NotFoundException(String.format("A game with the id %d was not found", id))
-                );
+        Game game = getExistingGame(id);
 
         //remove the player from the playerId list of the game
         game.getPlayerIds().remove(playerId);
