@@ -41,6 +41,11 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
+    public User getUser(long id){
+        User user = userRepository.getOne(id);
+        return user;
+    }
+
     public User createUser(User newUser) {
 
         checkIfUserExists(newUser);

@@ -1,6 +1,10 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
+import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
@@ -8,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,11 +23,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,6 +51,10 @@ public class LobbyControllerTest {
 
     @MockBean
     LobbyService lobbyService;
+
+    @MockBean
+    UserRepository userRepository;
+
 
     @Test
     public void createLobby() throws Exception {

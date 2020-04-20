@@ -10,6 +10,7 @@ public class LobbyGetDTO {
     private List<Long> playerIds;
     private Long gameId;
 
+
     public Long getId() {
         return id;
     }
@@ -30,7 +31,7 @@ public class LobbyGetDTO {
         return hostPlayerId;
     }
 
-    public void sethostPlayerId(Long hostPlayerIdPlayerId) {
+    public void sethostPlayerId(Long hostPlayerId) {
         this.hostPlayerId = hostPlayerId;
     }
 

@@ -22,6 +22,7 @@ public class UserGetDTO {
     private long gameId;
     private long lobbyId;
     private List<Long> invitations;
+    private String image;
 
 
     public String getPassword() {
@@ -143,5 +144,13 @@ public class UserGetDTO {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

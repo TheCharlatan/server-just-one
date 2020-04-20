@@ -10,6 +10,7 @@ public class UserPostDTO {
     private char gender;
     private Date birthday;
     private String country;
+    private String image;
 
     public String getUsername() {
         return username;
@@ -57,5 +58,13 @@ public class UserPostDTO {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

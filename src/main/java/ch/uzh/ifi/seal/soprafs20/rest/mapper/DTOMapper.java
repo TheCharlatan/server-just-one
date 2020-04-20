@@ -27,6 +27,7 @@ public interface DTOMapper {
     @Mapping(source = "country", target = "country")
     @Mapping(source = "birthday", target="birthDay")
     @Mapping(source = "gender",target = "gender")
+    @Mapping(source="image" ,target="image")
     User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
     @Mapping(source = "id", target = "id")
@@ -44,6 +45,7 @@ public interface DTOMapper {
     @Mapping(source = "gameId", target = "gameId")
     @Mapping(source = "lobbyId", target = "lobbyId")
     @Mapping(source = "invitations", target = "invitations")
+    @Mapping(source="image" ,target="image")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(source = "id", target = "id")

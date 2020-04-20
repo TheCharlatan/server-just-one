@@ -70,6 +70,9 @@ public class UserController {
     @ResponseBody
     public UserGetDTO getUserById(@RequestHeader("X-Auth-Token") String token, @PathVariable Long userId){
         UserGetDTO userGetDTO = new UserGetDTO();
+        User user = userService.getUser(userId);
+
+        userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
         return  userGetDTO;
 
     }

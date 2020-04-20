@@ -41,13 +41,25 @@ public class LobbyService {
         this.userRepository = userRepository;
     }
 
-    public Lobby createLobby(Lobby newLobby){
+    public Long createLobby(Lobby newLobby){
 
         checkIfLobbyExist(newLobby);
-        lobbyRepository.save(newLobby);
+        newLobby.getPlayerIds().add(newLobby.getHostPlayerId());
 
-        return newLobby;
+        newLobby = lobbyRepository.save(newLobby);
 
+        User user = userRepository.getOne(newLobby.gethostPlayerId());
+        user.setLobbyId(newLobby.getId());
+        userRepository.save(user);
+
+        return newLobby.getId();
+
+    }
+
+    public void updateStatusOfLobby(long id, int status){
+        Lobby lobby = getLobby(id);
+        lobby.setStatus(status);
+        saveOrUpdate(lobby);
     }
 
     public void saveOrUpdate(Lobby updateLobby){
@@ -80,6 +92,10 @@ public class LobbyService {
     public void addPlayerToLobby(long id, long userId){
         Lobby lobby = getLobby(id);
 
+        if(lobby.getStatus()==1){
+            throw new LobbyException("Game is in progress. You can't join lobby in the middle of the game. Please try later");
+        }
+
         //Checking if the user exists before adding the user to lobby
         userRepository.findById(userId)
                 .orElseThrow(
@@ -103,7 +119,9 @@ public class LobbyService {
 
     public Lobby getLobby(Long id){
 
-        Lobby lobby = this.lobbyRepository.findById(id).get();
+        Lobby lobby = this.lobbyRepository.getOne(id);
+
+        //Lobby lobby = this.lobbyRepository.findById(id).get();
 
         String baseErrorMessage = "The lobby %d doesn't exist. Please check the lobby which you are joining";
         if(null == lobby){
@@ -124,4 +142,5 @@ public class LobbyService {
             throw new LobbyException(String.format(baseErrorMessage, "lobby name"));
         }
     }
+    
 }

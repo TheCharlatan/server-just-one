@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -90,6 +89,9 @@ public class User implements Serializable {
 
     @Column
     private long lobbyId;
+
+    @Column
+    private String image;
 
 
     public static long getSerialVersionUID() {
@@ -214,5 +216,13 @@ public class User implements Serializable {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String imageHolder) {
+        this.image = imageHolder;
     }
 }
