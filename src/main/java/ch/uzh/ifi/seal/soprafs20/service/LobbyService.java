@@ -44,6 +44,8 @@ public class LobbyService {
     public Long createLobby(Lobby newLobby){
 
         checkIfLobbyExist(newLobby);
+        newLobby.getPlayerIds().add(newLobby.getHostPlayerId());
+
         newLobby = lobbyRepository.save(newLobby);
 
         User user = userRepository.getOne(newLobby.gethostPlayerId());

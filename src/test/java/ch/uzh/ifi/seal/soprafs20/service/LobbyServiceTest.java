@@ -93,7 +93,7 @@ public class LobbyServiceTest {
     public void addUserToLobby(){
 
         List<Long> playerList  = new ArrayList<>();
-        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
+        Long[] longList = new Long[]{3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
 
@@ -103,9 +103,9 @@ public class LobbyServiceTest {
 
 
         Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
-        Mockito.when(userRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(testUser));
+        Mockito.when(userRepository.findById(2L)).thenReturn(java.util.Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
-        lobbyService.addPlayerToLobby(1L,1L);
+        lobbyService.addPlayerToLobby(1L,2L);
         assertEquals(lobbyTest.getPlayerIds().size(),7);
 
     }
@@ -115,7 +115,7 @@ public class LobbyServiceTest {
 
 
         List<Long> playerList  = new ArrayList<>();
-        Long[] longList = new Long[]{1L,3L,4L,5L,6L,7L};
+        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
@@ -133,7 +133,7 @@ public class LobbyServiceTest {
     public void addMoreThanSevenPlayerToLobby(){
 
         List<Long> playerList  = new ArrayList<>();
-        Long[] longList = new Long[]{1L,2L,3L,4L,5L,6L,7L};
+        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
@@ -150,7 +150,7 @@ public class LobbyServiceTest {
     public void removePlayerFromLobby(){
 
         List<Long> playerList  = new ArrayList<>();
-        Long[] longList = new Long[]{1L,2L,3L,4L,5L,6L,7L};
+        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
