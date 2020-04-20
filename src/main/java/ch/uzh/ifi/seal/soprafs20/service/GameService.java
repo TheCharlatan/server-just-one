@@ -223,9 +223,15 @@ public class GameService {
     }
 
     public void wrapup(long id, long playerId) {
-        Game game = gameRepository.findById(id).get();
+        Game game = gameRepository.findById(id)
+                .orElseThrow(
+                    () -> new NotFoundException(String.format("A game with the id %d was not found", id))
+                );
+
         //remove the player from the playerId list of the game
         game.getPlayerIds().remove(playerId);
+        gameRepository.save(game);
+        gameRepository.flush();
 
         //if the game is empty because the last player left the game, the game is deleted
         if (game.getPlayerIds().isEmpty()) {
