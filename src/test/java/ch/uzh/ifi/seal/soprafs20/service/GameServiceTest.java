@@ -90,6 +90,14 @@ public class GameServiceTest {
         assertThrows(ServiceException.class, () -> gameService.createGame(playerIds));
     }
 
+    @Test
+    public void getExistingGame_success() {
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Game game = gameService.getExistingGame(1L);
+
+        assertEquals(game, testGame);
+    }
+
     /* These are some tests for the private methods. They are commented sinc private methods cannot be
      * tested under normal circumstances and cannot be tested under normal circumstances. They are kept
      * here to still allow some quick implementation testing.

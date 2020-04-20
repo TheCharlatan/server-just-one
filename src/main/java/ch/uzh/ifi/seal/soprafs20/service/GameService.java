@@ -124,4 +124,13 @@ public class GameService {
         }
         return words;
     }
+
+    public Game getExistingGame(Long id) {
+        if(gameRepository.findById(id).isPresent()) {
+            return gameRepository.findById(id).get();
+        }
+        else {
+            throw new NotFoundException("The game could not be found!");
+        }
+    }
 }

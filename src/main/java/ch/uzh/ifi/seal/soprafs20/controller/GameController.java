@@ -45,8 +45,8 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public GameGetDTO getGameInfo(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
-        GameGetDTO gameGetDTO = new GameGetDTO();
-        return gameGetDTO;
+        Game game = gameService.getExistingGame(id);
+        return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
     }
 
     @PutMapping("/game/{id}/number")
