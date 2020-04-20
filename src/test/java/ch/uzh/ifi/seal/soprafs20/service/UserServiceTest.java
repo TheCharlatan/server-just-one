@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ public class UserServiceTest {
         testUser.setId(1L);
         testUser.setName("testName");
         testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        testUser.setToken("supersecrettokenvalue");
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
@@ -79,5 +82,22 @@ public class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
+    @Test
+    public void login_success() {
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        String token = userService.login("testUsername", "testPassword");
 
+        assertEquals(token, "supersecrettokenvalue");
+    }
+
+    @Test
+    public void login_invalid_username() {
+        assertThrows(AuthenticationException.class, () -> userService.login("invalidUsername", "testPassword"));
+    }
+
+    @Test
+    public void login_invalid_password() {
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        assertThrows(AuthenticationException.class, () -> userService.login("testUsername", "invalidPassword"));
+    }
 }

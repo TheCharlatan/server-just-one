@@ -125,6 +125,7 @@ public class GameService {
         return words;
     }
 
+
     public void chooseWord(long gameId, int wordIndex){
         Game game = getExistingGame(gameId);
 
@@ -154,12 +155,22 @@ public class GameService {
         gameRepository.flush();
     }
 
-    public Game getExistingGame(long gameId){
+/*    public Game getGame(long gameId) {
         Game game = gameRepository.getOne(gameId);
 
-        if(game == null){
-            throw new NotFoundException(String.format("Game with %d id is not created",gameId));
+        if (game == null) {
+            throw new NotFoundException(String.format("Game with %d id is not created", gameId));
         }
         return game;
+    }*/
+
+    public Game getExistingGame(Long id) {
+        if(gameRepository.findById(id).isPresent()) {
+            return gameRepository.findById(id).get();
+        }
+        else {
+            throw new NotFoundException("The game could not be found!");
+        }
+
     }
 }
