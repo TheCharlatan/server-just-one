@@ -204,6 +204,8 @@ public class GameService {
 
         // call the function "roundEnd" to set all the information needed for a new round
         //  or wrap up the game if no cards are left on the stack
+        gameRepository.save(game);
+        gameRepository.flush();
         //roundEnd(game);
         return gamePutDTO;
     }
