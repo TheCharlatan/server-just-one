@@ -99,5 +99,4 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         assertThrows(AuthenticationException.class, () -> userService.login("testUsername", "invalidPassword"));
     }
-
 }

@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +68,30 @@ public class UserService {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
         }
         return userByUsername.getToken();
+    }
+
+    public void authenticate(String token) {
+        User authUser = userRepository.findByToken(token);
+        if (authUser == null) {
+            throw new AuthenticationException("Invalid token, user is not authenticated");
+        }
+    }
+
+    public void invite(long userId, long lobbyId) {
+        Optional<User> optionalInvitedUser = userRepository.findById(userId);
+        User invitedUser;
+        try {
+            invitedUser = optionalInvitedUser.get();
+        } catch (Exception e) {
+            throw new ServiceException("Invitation failed, user could not be found");
+        }
+        List<Long> invitations = invitedUser.getInvitations();
+        invitations.add(lobbyId);
+        invitedUser.setInvitations(invitations);
+        userRepository.save(invitedUser);
+        userRepository.flush();
+
+        log.debug("Add invitation to lobby {} for User: {}", userId, lobbyId);
     }
 
     /**
