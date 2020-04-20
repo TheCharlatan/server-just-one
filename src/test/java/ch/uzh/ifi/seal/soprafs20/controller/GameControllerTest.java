@@ -122,6 +122,7 @@ public class GameControllerTest {
     public void wrapupGame() throws Exception {
         MockHttpServletRequestBuilder deleteRequest = delete("/game/1")
             .contentType(MediaType.APPLICATION_JSON)
+            .content(asJsonString(1))
             .header("X-Auth-Token","supersecrettokenvalue");
 
         mockMvc.perform(deleteRequest)
