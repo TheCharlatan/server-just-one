@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -114,6 +115,26 @@ public class GameServiceTest {
         Game game = gameService.getExistingGame(1L);
 
         assertEquals(game, testGame);
+    }
+
+    @Test
+    public void checkGuess_successfulGuess() {
+        GamePutDTO gamePutDTO = new GamePutDTO();
+        ArrayList<String> words = new ArrayList<>();
+        words.add("Alcatraz");
+        words.add("Smoke");
+        words.add("Hazelnut");
+        words.add("Diamond");
+        words.add("Rose");
+        testGame.setWords(words);
+        testGame.setWordIndex(1);
+        gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex()));
+        gamePutDTO.setWordIndex(testGame.getWordIndex());
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
+
+        assertEquals(gamePutDTOTest.getGuessCorrect(), "correct");
     }
 
     /* These are some tests for the private methods. They are commented sinc private methods cannot be

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
@@ -83,13 +84,15 @@ public class GameController {
             @RequestHeader("X-Auth-Token") String token,
             @PathVariable("id") long id,
             @RequestBody GamePutDTO gamePutDTO) {
-        return  gamePutDTO;
+
+        return this.gameService.checkGuess(gamePutDTO, id);
     }
 
     @DeleteMapping("/game/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void wrapup(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
+
         return;
     }
 }
