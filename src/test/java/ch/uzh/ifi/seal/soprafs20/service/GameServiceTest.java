@@ -140,6 +140,8 @@ public class GameServiceTest {
     @Test
     public void wrapup_playerLeavesGame () {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         long playerIdLeft = testGame.getPlayerIds().get(1);
         gameService.wrapup(testGame.getId(), playerIdLeft);
 
@@ -151,9 +153,11 @@ public class GameServiceTest {
         Game game = new Game();
         game.setId(2L);
         ArrayList<Long> playerIds = new ArrayList<Long>();
-        playerIds.add(0L);
+        playerIds.add(1L);
         game.setPlayerIds(playerIds);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(game)));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         long playerIdLeft = game.getPlayerIds().get(0);
         gameService.wrapup(game.getId(), playerIdLeft);
 

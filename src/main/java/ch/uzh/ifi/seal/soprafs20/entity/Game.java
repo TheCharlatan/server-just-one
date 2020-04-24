@@ -122,11 +122,11 @@ public class Game implements Serializable {
         this.score = score;
     }
 
-    public Long getActivePlayer() {
+    public Long getActivePlayerId() {
         return activePlayerId;
     }
 
-    public void setActivePlayer(Long activePlayerId) {
+    public void setActivePlayerId(Long activePlayerId) {
         this.activePlayerId = activePlayerId;
     }
 
