@@ -1,9 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
+import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,10 @@ public class Game implements Serializable {
     @Column(nullable = false)
     private int wordIndex;
 
+    @Column
+    @ElementCollection
+    private List<Integer> lastWordIndex = new ArrayList<>();
+
     @Column(nullable = false)
     private int score;
 
@@ -51,23 +57,43 @@ public class Game implements Serializable {
     @ElementCollection
     private List<String> clues = new ArrayList<String>();
 
-    @Column(nullable = false)
-    private int timestamp;
+    @Column
+    private LocalTime timestamp;
 
-    @Column(nullable = false)
+    @Column
     private int wordsGuessedCorrect;
 
-    @Column(nullable = false)
+    @Column
     private int wordsGuessedWrong;
 
-    @Column(nullable = false)
+    @Column
     private int cardStackCount;
 
-    @Column(nullable = false)
+    @Column
     private int cardGuessedCount;
+
+    @Column()
+    private CardStatus cardStatus;
 
     public Long getId() {
         return id;
+    }
+
+
+    public List<Integer> getLastWordIndex() {
+        return lastWordIndex;
+    }
+
+    public void setLastWordIndex(List<Integer> lastWordIndex) {
+        this.lastWordIndex = lastWordIndex;
+    }
+
+    public CardStatus getCardStatus() {
+        return cardStatus;
+    }
+
+    public void setCardStatus(CardStatus cardStatus) {
+        this.cardStatus = cardStatus;
     }
 
     public void setId(Long id) {
@@ -138,11 +164,11 @@ public class Game implements Serializable {
         this.clues = clues;
     }
 
-    public int getTimestamp() {
+    public LocalTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(LocalTime timestamp) {
         this.timestamp = timestamp;
     }
 
