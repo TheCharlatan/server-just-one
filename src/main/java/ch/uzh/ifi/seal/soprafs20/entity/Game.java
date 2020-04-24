@@ -48,7 +48,7 @@ public class Game implements Serializable {
     private List<Integer> lastWordIndex = new ArrayList<>();
 
     @Column(nullable = false)
-    private int score;
+    private int roundScore;
 
     @Column(nullable = false)
     private Long activePlayerId;
@@ -56,6 +56,10 @@ public class Game implements Serializable {
     @Column()
     @ElementCollection
     private List<String> clues = new ArrayList<String>();
+
+    @Column
+    @ElementCollection
+    private List<Integer> score = new ArrayList<>();
 
     @Column
     private LocalTime timestamp;
@@ -140,12 +144,12 @@ public class Game implements Serializable {
         this.wordIndex = wordIndex;
     }
 
-    public int getScore() {
-        return score;
+    public int getRoundScore() {
+        return roundScore;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setRoundScore(int score) {
+        this.roundScore = score;
     }
 
     public Long getActivePlayer() {

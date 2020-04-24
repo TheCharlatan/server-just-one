@@ -160,6 +160,8 @@ public class GameServiceTest {
         assertFalse(gameRepository.existsById(game.getId()));
     }
 
+
+
     /* These are some tests for the private methods. They are commented sinc private methods cannot be
      * tested under normal circumstances and cannot be tested under normal circumstances. They are kept
      * here to still allow some quick implementation testing.
