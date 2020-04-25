@@ -95,8 +95,10 @@ public class UserController {
             throw new AuthenticationException("Unable to decode username and password");
         }
         // now call the user service with authStrings[0] and authStrings[1]
-        userService.login(username, password);
-        UserAuthDTO userAuthDTO = new UserAuthDTO("supersecrettokenvalue");
+        User user = userService.login(username, password);
+        String token = user.getToken();
+        Long id = user.getId();
+        UserAuthDTO userAuthDTO = new UserAuthDTO(user.getToken(), id);
         return userAuthDTO;
     }
 
