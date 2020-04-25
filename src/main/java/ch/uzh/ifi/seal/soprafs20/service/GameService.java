@@ -80,7 +80,6 @@ public class GameService {
                     () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
                 );
             user.setGameId(gameId);
-            user.setLobbyId(0);
             userRepository.save(user);
             userRepository.flush();
         }
