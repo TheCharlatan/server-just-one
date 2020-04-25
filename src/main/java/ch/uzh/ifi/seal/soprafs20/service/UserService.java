@@ -3,8 +3,10 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.hibernate.boot.model.relational.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +15,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * User Service
@@ -28,11 +32,14 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    private final UserPollService userPollService;
+
     private final UserRepository userRepository;
 
     @Autowired
     public UserService(@Qualifier("userRepository") UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.userPollService = new UserPollService(userRepository);
     }
 
     public List<User> getUsers() {
@@ -95,6 +102,31 @@ public class UserService {
             throw new NotFoundException(String.format("Could not find user with id %d.", id));
         }
         return optionalUser.get();
+    }
+
+    // subscription method for a certain user id
+    public void subscribe(Long id) {
+        try {
+            userRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot subscribe to a non-existing user");
+        }
+        userPollService.subscribe(id);
+    }
+
+    // unsubscription method for a certain user id
+    public void unsubscribe(Long id) {
+        userPollService.unsubscribe(id);
+    }
+
+    // async, returns once there is a change for the user id
+    public void pollGetUpdate(DeferredResult<UserGetDTO> result, Long id) {
+        try {
+            userRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot poll for a non-existing user");
+        }
+        userPollService.pollGetUpdate(result, id);
     }
 
     /**

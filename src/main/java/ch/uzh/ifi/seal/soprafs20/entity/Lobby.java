@@ -29,7 +29,7 @@ public class Lobby implements Serializable {
     private Long hostPlayerId;
 
     @Column()
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Long> playerIds = new ArrayList<>();
 
     @Column

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.net.URI;
@@ -57,6 +58,27 @@ public class LobbyController {
     public LobbyGetDTO getLobbyInfo(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
         Lobby lobby = lobbyService.getLobby(id);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+    }
+
+    @GetMapping("/lobbypoll/{lobbyId}/subscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void subscribe(@PathVariable Long lobbyId){
+        lobbyService.subscribe(lobbyId);
+    }
+
+    @GetMapping("/lobbypoll/{lobbyId}/unsubscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void unsubscribe(@PathVariable Long lobbyId){
+        lobbyService.unsubscribe(lobbyId);
+    }
+
+    @GetMapping("/lobbypoll/{lobbyId}")
+    @ResponseStatus(HttpStatus.OK)
+    DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
+        // create deferred result that times out after 60 seconds
+        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<LobbyGetDTO>(60000l);
+        lobbyService.pollGetUpdate(finalResult, lobbyId);
+        return finalResult;
     }
 
     @PutMapping("/lobby/{id}")
