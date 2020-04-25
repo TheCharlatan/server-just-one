@@ -66,6 +66,7 @@ public class GameService {
         newGame.setWords(selectGameWords());
         newGame.setCardStackCount(13);
         newGame.setCardGuessedCount(0);
+        newGame.setWordIndex(-1);
 
         // save the game to the database
         newGame = gameRepository.save(newGame);
