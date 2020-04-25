@@ -198,10 +198,11 @@ public class GameService {
         if (guess.equals("SKIP")) {
             gamePutDTO.setGuessCorrect("skip");
             //handle according to a skipped guess -> the card is put away
+            game.setCardStackCount(game.getCardStackCount() - 1);
         }
 
         //Successful Guess
-        if (mysteryWord.equals(guess)) {
+        else if (mysteryWord.equals(guess)) {
             gamePutDTO.setGuessCorrect("correct");
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
@@ -213,6 +214,8 @@ public class GameService {
             gamePutDTO.setGuessCorrect("wrong");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
+            game.setCardGuessedCount(game.getCardGuessedCount() + 1);
+            game.setWordsGuessedWrong(game.getWordsGuessedWrong() + 1);
         }
 
         // call the function "roundEnd" to set all the information needed for a new round
