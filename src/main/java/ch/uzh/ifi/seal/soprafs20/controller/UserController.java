@@ -56,10 +56,10 @@ public class UserController {
         User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
         User createdUser = userService.createUser(user);
 
-
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .buildAndExpand("1")
+                .path("/{id}")
+                .buildAndExpand(String.format("%d", createdUser.getId()))
                 .toUri();
         return ResponseEntity.created(location).build();
 

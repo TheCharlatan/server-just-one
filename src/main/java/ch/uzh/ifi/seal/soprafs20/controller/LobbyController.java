@@ -40,11 +40,12 @@ public class LobbyController {
         Lobby lobby  = DTOMapper.INSTANCE.convertLobbyPostDTOToEntity(lobbyPostDTO);
 
         long lobbyId = lobbyService.createLobby(lobby);
-        //lobbyService.addPlayerToLobby(lobbyId,lobbyPostDTO.gethostPlayerId());
         URI location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .buildAndExpand(String.format("%d",lobbyId))
-            .toUri();
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(String.format("%d", lobbyId))
+                .toUri();
+
         return ResponseEntity.created(location).build();
     }
 

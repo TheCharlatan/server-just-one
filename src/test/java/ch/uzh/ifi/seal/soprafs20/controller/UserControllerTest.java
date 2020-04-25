@@ -29,6 +29,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 /**
  * UserControllerTest
@@ -46,15 +47,20 @@ public class UserControllerTest {
 
     @Test
     public void createUser() throws Exception {
-        User user = new User();
-        user.setUsername("Saurabh");
-        user.setPassword("1234");
+        User testUser = new User();
+        testUser.setUsername("Saurabh");
+        testUser.setPassword("1234");
+        testUser.setId(0l);
 
         MockHttpServletRequestBuilder postRequest = post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(user));
+                .content(asJsonString(testUser));
 
-        mockMvc.perform(postRequest).andExpect(status().isCreated());
+        Mockito.when(userService.createUser(Mockito.any())).thenReturn(testUser);
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(header().string("location", is("http://localhost/user/0")));
     }
 
     @Test

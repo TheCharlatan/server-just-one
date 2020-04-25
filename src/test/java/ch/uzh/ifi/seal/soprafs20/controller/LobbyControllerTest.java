@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 /**
  * LobbyControllerTest
@@ -66,6 +67,11 @@ public class LobbyControllerTest {
             .header("X-Auth-Token","supersecrettokenvalue");
 
         mockMvc.perform(postRequest).andExpect(status().isCreated());
+        Mockito.when(lobbyService.createLobby(Mockito.any())).thenReturn(0l);
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(header().string("location", is("http://localhost/lobby/0")));
     }
 
     @Test

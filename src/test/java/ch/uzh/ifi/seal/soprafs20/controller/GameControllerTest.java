@@ -33,6 +33,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+
 
 /**
  * GameControllerTest
@@ -57,8 +59,11 @@ public class GameControllerTest {
                 .content(asJsonString(gamePostDTO))
                 .header("X-Auth-Token","supersecrettokenvalue");
 
+        Mockito.when(gameService.createGame(Mockito.any())).thenReturn(0l);
+
         mockMvc.perform(postRequest)
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().string("location", is("http://localhost/game/0")));
     }
 
     @Test
