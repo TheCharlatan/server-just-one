@@ -71,12 +71,11 @@ public class GameController {
     @PutMapping("/game/{id}/clue")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void clue(
-            @RequestHeader("X-Auth-Token") String token,
-            @PathVariable("id") long id,
+    public void clue(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id,
             @RequestBody GamePutDTO gamePutDTO) {
-        gameService.submitWord(id, gamePutDTO.getClue());
-        return;
+
+        gameService.submitWord(id,gamePutDTO.getClue());
+
     }
 
     @PutMapping("/game/{id}/guess")

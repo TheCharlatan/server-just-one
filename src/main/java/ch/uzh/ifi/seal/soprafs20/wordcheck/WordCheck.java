@@ -50,7 +50,7 @@ public class WordCheck {
                 return false;
             }
         } catch (Exception e) {
-          throw new ServiceException(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
         return true;
     }

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
@@ -13,18 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Calendar;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -61,8 +57,11 @@ public class GameService {
         newGame.setPlayerIds(players);
         newGame.setGameStatus(GameStatus.AWAITING_INDEX);
         newGame.setRound(1);
-        newGame.setScore(0);
+
+        newGame.setRoundScore(0);
+        //newGame.setScore(0);
         newGame.setActivePlayerId(newGame.getPlayerIds().get(0));
+
         newGame.setWords(selectGameWords());
         newGame.setCardStackCount(13);
         newGame.setCardGuessedCount(0);
@@ -86,28 +85,6 @@ public class GameService {
 
         log.debug("Created Information for Game: {}", newGame);
         return gameId;
-    }
-
-    public void submitWord(long id, String word) {
-        WordCheck wordChecker = new WordCheck();
-        Game game = gameRepository.findById(id)
-            .orElseThrow(
-                () -> new NotFoundException(String.format("A game with the id %id was not found", id))
-            );
-        if (!wordChecker.checkEnglishWord(word)) {
-            throw new ServiceException("The clue submitted is not an English word");
-        }
-        List<String> clues = game.getClues();
-        if (clues.size() >= game.getPlayerIds().size() - 1) {
-           throw new ServiceException("Too many clues submitted already");
-        }
-        clues.add(word);
-        game.setClues(clues);
-        if (game.getClues().size() >= game.getPlayerIds().size() - 1) {
-           game.setGameStatus(GameStatus.AWAITING_GUESS);
-        }
-        gameRepository.save(game);
-        gameRepository.flush();
     }
 
     private ArrayList<String> selectGameWords() {
@@ -153,6 +130,13 @@ public class GameService {
     public void chooseWord(long gameId, int wordIndex){
         Game game = getExistingGame(gameId);
 
+        if(wordIndex>5){
+            throw new ServiceException("Please enter the valid choices");
+        }
+        if(game.getLastWordIndex().contains(wordIndex)){
+            throw new ServiceException("User not allowed to enter the same guess word");
+        }
+
         /*
         65 words in game wordlist will be divided into 13 cards each containing 5 words.
 
@@ -165,19 +149,47 @@ public class GameService {
         generateIndex = 5*(2-1)-1+3 = 7
          */
         game.setWordIndex(generateNewIndex);
-
+        game.setTimestamp(java.time.LocalTime.now());
+        /*
+        We need to empty the previous clues in case user is choosing the new word after rejection.
+         */
+        game.getClues().clear();
+        game.getLastWordIndex().add(wordIndex);
+        game.setGameStatus(GameStatus.AWAITING_CLUES);
+        game.setCardStatus(CardStatus.AWAITING_CLUES);
         gameRepository.save(game);
         gameRepository.flush();
 
     }
 
+    /*
+        this method will set the card status of the game to USER_REJECTED_WORD
+        and will save the lastWordIndex in order to stop the user from entering the same word
+        as of last time.
+     */
     public void rejectWord(long id){
         Game game = getExistingGame(id);
 
+        LocalTime clueTime = game.getTimestamp();
+        LocalTime nowTime = java.time.LocalTime.now();
+        long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
+        if(elapsedSeconds>30){
+            throw new ServiceException("Cannot reject word after 30 seconds");
+        }
+
+        if(game.getLastWordIndex().size()>3){
+            throw new ServiceException("Cannot reject more than 3 words");
+        }
+        if(game.getGameStatus().equals(GameStatus.AWAITING_GUESS)){
+            throw new ServiceException("Cannot reject word when all the clues have been submitted");
+        }
         game.setWordIndex(-1);
+        game.setCardStatus(CardStatus.USER_REJECTED_WORD);
+        game.setGameStatus(GameStatus.AWAITING_INDEX);
         gameRepository.save(game);
         gameRepository.flush();
     }
+
 
     public Game getExistingGame(Long id) {
         if(!gameRepository.findById(id).isPresent()) {
@@ -193,6 +205,11 @@ public class GameService {
         Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
+
+        LocalTime guessTime = game.getTimestamp();
+        LocalTime nowTime = java.time.LocalTime.now();
+        long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
+
         //Skipped Guess
         if (guess.equals("SKIP")) {
             gamePutDTO.setGuessCorrect("skip");
@@ -205,10 +222,15 @@ public class GameService {
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
-            game.setCardStackCount(game.getCardStackCount() - 1);
+
+            game.setCardStackCount(game.getCardGuessedCount() - 1);
+
+            game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)+100);
+
         }
         // Wrong Guess
         else {
+            game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
             gamePutDTO.setGuessCorrect("wrong");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
@@ -231,6 +253,7 @@ public class GameService {
             return;
         }
         game.setGameStatus(GameStatus.AWAITING_INDEX);
+        game.setCardStatus(CardStatus.AWAITING_INDEX);
 
         // select the next player
         List<Long> activePlayerId = game.getPlayerIds();
@@ -241,7 +264,21 @@ public class GameService {
         List<String> clues = new ArrayList<String>();
         game.setClues(clues);
 
-        //TODO: update the score of the active player
+        //reset the card Index
+        game.setWordIndex(-1);
+
+        //reset lastWordList
+        game.getLastWordIndex().clear();
+
+        //reset roundend score
+        game.setRoundScore(0);
+
+        //Updating score of the player and also storing the score of previous rounds
+        int scoreForRound = game.getRoundScore()/10;
+        updateUserScore(game.getActivePlayerId(), scoreForRound);
+
+        //Adding the score of this round to scoreboard
+        game.getScore().add(scoreForRound);
     }
 
     public void wrapup(long id, long playerId) {
@@ -269,4 +306,100 @@ public class GameService {
             gameRepository.flush();
         }
     }
+
+
+
+    static boolean allCluesRejected(List<?> templist, int compareSize) {
+
+        return Collections.frequency(templist, "REJECTED") == compareSize;
+
+    }
+
+    /*
+    Chekcing time taken to get the clue from the user
+    If the user took more time than 30seconds, answer will be rejected and
+    "REJECTED" will be populated into the list.
+     */
+    public long checkTimeForClue(Game game){
+        LocalTime clueTime = game.getTimestamp();
+        LocalTime nowTime = java.time.LocalTime.now();
+        long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
+        if(elapsedSeconds>30){
+            List<String> clues = game.getClues();
+            clues.add("REJECTED");
+            game.setClues(clues);
+            gameRepository.save(game);
+            gameRepository.flush();
+            throw new ServiceException("You took more than 30 seconds to enter the valid clue");
+        }
+        return elapsedSeconds;
+    }
+
+    public void updateUserScore(long playerId, int score){
+        User user = userRepository.findById(playerId)
+                .orElseThrow(
+                        () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
+                );
+        user.setScore(user.getScore()+score);
+        userRepository.save(user);
+        userRepository.flush();
+    }
+
+    public void submitWord(long id, String word) {
+        WordCheck wordChecker = new WordCheck();
+        Game game = gameRepository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException(String.format("A game with the id %id was not found", id))
+                );
+
+        long elapsedSeconds = checkTimeForClue(game);
+
+        List<String> clues = game.getClues();
+        if (!wordChecker.checkEnglishWord(word)) {
+            //throw new ServiceException("The clue submitted is not an English word");
+            //Need to add REJECTED to the list in order to check if all the clues have been received or not.
+            //So removing the exception statement.
+            clues.add("REJECTED");
+        }
+        else {
+            clues.add(word);
+        }
+        game.setClues(clues);
+
+        if (clues.size() > game.getPlayerIds().size()-1) {
+            throw new ServiceException("Too many clues submitted already");
+        }
+
+        game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
+        if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
+            game.setGameStatus(GameStatus.AWAITING_CLUES);
+            game.setCardStatus(CardStatus.AWAITING_CLUES);
+        }
+
+        if (game.getClues().size() >= game.getPlayerIds().size() - 1) {
+            game.setGameStatus(GameStatus.AWAITING_GUESS);
+            //Setting the score as per user story
+            game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,"REJECTED"));
+            //Setting the time stamp to current time stamp when all the clues have been received.
+            //User will have than 30 seconds to guess the word.
+            game.setTimestamp(java.time.LocalTime.now());
+            game.setCardStatus(CardStatus.ALL_CLUES_RECEIVED);
+        }
+
+        /*
+        Checking if all the entered clue were invalid.
+        If found true, the card will be removed and the game status will
+        change to Awaiting Index in order to get new word.
+         */
+        if(allCluesRejected(clues,game.getPlayerIds().size()-1)){
+            game.setCardStatus(CardStatus.NO_VALID_CLUE_ENTERED);
+            game.setWordIndex(-1);
+            game.setGameStatus(GameStatus.AWAITING_INDEX);
+            game.getClues().clear();
+        }
+
+        gameRepository.save(game);
+        gameRepository.flush();
+    }
+
 }

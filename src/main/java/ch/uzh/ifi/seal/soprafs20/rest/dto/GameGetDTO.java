@@ -1,7 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
+import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 
+import java.time.LocalTime;
 import java.util.List;
 
 
@@ -11,10 +13,11 @@ public class GameGetDTO {
     private List<Long> playerIds;
     private int round;
     private GameStatus gameStatus;
+    private CardStatus cardStatus;
     private int score;
     private Long activePlayerId;
     private List<String> clues;
-    private int timestamp;
+    private LocalTime timestamp;
     private int wordsGuessedCorrect;
     private int wordsGuessedWrong;
     private int cardStackCount;
@@ -87,11 +90,20 @@ public class GameGetDTO {
         this.clues = clues;
     }
 
-    public int getTimestamp() {
+    public LocalTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(LocalTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    public CardStatus getCardStatus() {
+        return cardStatus;
+    }
+
+    public void setCardStatus(CardStatus cardStatus) {
+        this.cardStatus = cardStatus;
     }
 }
