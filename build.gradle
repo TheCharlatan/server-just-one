@@ -10,7 +10,7 @@ plugins {
 group 'ch.uzh.ifi.seal'
 version '1.0.0'
 
-sourceCompatibility = 1.11
+sourceCompatibility = 1.13
 
 configurations {
     developmentOnly

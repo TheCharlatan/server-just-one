@@ -152,11 +152,19 @@ public class Game implements Serializable {
         this.roundScore = score;
     }
 
-    public Long getActivePlayer() {
+    public Long getActivePlayerId() {
         return activePlayerId;
     }
 
-    public void setActivePlayer(Long activePlayerId) {
+    public List<Integer> getScore() {
+        return score;
+    }
+
+    public void setScore(List<Integer> score) {
+        this.score = score;
+    }
+
+    public void setActivePlayerId(Long activePlayerId) {
         this.activePlayerId = activePlayerId;
     }
 

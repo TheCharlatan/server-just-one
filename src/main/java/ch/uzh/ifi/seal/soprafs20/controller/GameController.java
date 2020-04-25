@@ -53,12 +53,12 @@ public class GameController {
     @PutMapping("/game/{id}/number")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void chooseWord(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id,
+    public void chooseWord(
+            @RequestHeader("X-Auth-Token") String token,
+            @PathVariable("id") long id,
             @RequestBody GamePutDTO gamePutDTO) {
-
-        gameService.chooseWord(id,gamePutDTO.getWordIndex());
-
-
+        gameService.chooseWord(id, gamePutDTO.getWordIndex());
+        return;
     }
 
     @DeleteMapping("/game/{id}/number")
@@ -87,6 +87,7 @@ public class GameController {
             @RequestBody GamePutDTO gamePutDTO) {
 
         return this.gameService.checkGuess(gamePutDTO, id);
+
     }
 
     @DeleteMapping("/game/{id}")

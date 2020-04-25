@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
+import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
@@ -15,8 +17,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,6 +114,51 @@ public class GameServiceTest {
     }
 
     @Test
+    public void chooseWordExceptionForInvalidNo(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        assertThrows(ServiceException.class,()->gameService.chooseWord(testGame.getId(), 7));
+    }
+
+    @Test
+    public void chooseWordExceptionForSameChoiceInCaseOfRejection(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.getLastWordIndex().add(1);
+        assertThrows(ServiceException.class,()->gameService.chooseWord(testGame.getId(), 1));
+    }
+
+    @Test
+    public void rejectWordTestTimeFailure(){
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
+    }
+
+    @Test
+    public void rejectWordTestMoreThanThreeTimes(){
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.getLastWordIndex().add(1);
+        testGame.getLastWordIndex().add(2);
+        testGame.getLastWordIndex().add(3);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
+    }
+
+    @Test
+    public void rejectWordSuccess(){
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setGameStatus(GameStatus.AWAITING_CLUES);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        gameService.rejectWord(1L);
+
+        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_INDEX);
+        assertEquals(testGame.getCardStatus(), CardStatus.USER_REJECTED_WORD);
+
+    }
+
+    @Test
     public void getExistingGame_success() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Game game = gameService.getExistingGame(1L);
@@ -127,6 +176,7 @@ public class GameServiceTest {
         words.add("Diamond");
         words.add("Rose");
         testGame.setWords(words);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(30, ChronoUnit.SECONDS));
         testGame.setWordIndex(1);
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex()));
         gamePutDTO.setWordIndex(testGame.getWordIndex());
@@ -140,6 +190,8 @@ public class GameServiceTest {
     @Test
     public void wrapup_playerLeavesGame () {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         long playerIdLeft = testGame.getPlayerIds().get(1);
         gameService.wrapup(testGame.getId(), playerIdLeft);
 
@@ -151,15 +203,45 @@ public class GameServiceTest {
         Game game = new Game();
         game.setId(2L);
         ArrayList<Long> playerIds = new ArrayList<Long>();
-        playerIds.add(0L);
+        playerIds.add(1L);
         game.setPlayerIds(playerIds);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(game)));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         long playerIdLeft = game.getPlayerIds().get(0);
         gameService.wrapup(game.getId(), playerIdLeft);
 
         assertFalse(gameRepository.existsById(game.getId()));
     }
 
+    @Test
+    public void timeForSubmitClueException(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        assertThrows(ServiceException.class, ()->gameService.checkTimeForClue(testGame));
+    }
+
+    @Test
+    public void allClueRejected(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        ArrayList<String> clues =  new ArrayList<>();
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        testGame.setClues(clues);
+        ArrayList<Long> playerIdList = new ArrayList<>();
+        playerIdList.add(1L);
+        playerIdList.add(2L);
+        playerIdList.add(3L);
+        playerIdList.add(4L);
+        playerIdList.add(5L);
+        testGame.setPlayerIds(playerIdList);
+
+        gameService.submitWord(1L,"asfdj");
+        assertEquals(testGame.getCardStatus(),CardStatus.NO_VALID_CLUE_ENTERED);
+
+    }
 
 
     /* These are some tests for the private methods. They are commented sinc private methods cannot be

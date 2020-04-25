@@ -44,7 +44,7 @@ public class WordCheck {
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("x-rapidapi-host", "wordsapiv1.p.rapidapi.com");
-            con.setRequestProperty("x-rapidapi-key", "6tOFozeIBpmshh7WXvuDxArPPBFWp1NDUDvjsn6DLJkBRHGn1x");
+	        con.setRequestProperty("x-rapidapi-key", "6tOFozeIBpmshh7WXvuDxArPPBFWp1NDUDvjsn6DLJkBRHGn1x");
             int responseCode = con.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 return false;
@@ -55,3 +55,4 @@ public class WordCheck {
         return true;
     }
 }
+
