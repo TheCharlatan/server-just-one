@@ -178,13 +178,82 @@ public class GameServiceTest {
         testGame.setWords(words);
         testGame.setTimestamp(java.time.LocalTime.now().minus(30, ChronoUnit.SECONDS));
         testGame.setWordIndex(1);
+        testGame.setCardStackCount(2);
+        testGame.setWordsGuessedCorrect(3);
+        testGame.setCardGuessedCount(4);
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex()));
         gamePutDTO.setWordIndex(testGame.getWordIndex());
+
+        int startWordsGuessedCorrect = testGame.getWordsGuessedCorrect();
+        int startCardGuessedCount = testGame.getCardGuessedCount();
+        int startCardStackCount = testGame.getCardStackCount();
+
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
 
         GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
 
+        assertEquals(startWordsGuessedCorrect + 1, testGame.getWordsGuessedCorrect());
+        assertEquals(startCardGuessedCount + 1, testGame.getCardGuessedCount());
+        assertEquals(startCardStackCount - 1, testGame.getCardStackCount());
         assertEquals(gamePutDTOTest.getGuessCorrect(), "correct");
+    }
+
+    @Test
+    public void checkGuess_wrongGuess() {
+        GamePutDTO gamePutDTO = new GamePutDTO();
+        ArrayList<String> words = new ArrayList<>();
+        words.add("Alcatraz");
+        words.add("Smoke");
+        words.add("Hazelnut");
+        words.add("Diamond");
+        words.add("Rose");
+        testGame.setWords(words);
+        testGame.setWordIndex(1);
+        testGame.setCardStackCount(2);
+        testGame.setWordsGuessedWrong(3);
+        testGame.setCardGuessedCount(4);
+        //Put a wrong guess
+        gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex() + 1));
+        gamePutDTO.setWordIndex(testGame.getWordIndex());
+
+        int startWordsGuessedWrong = testGame.getWordsGuessedWrong();
+        int startCardGuessedCount = testGame.getCardGuessedCount();
+        int startCardStackCount = testGame.getCardStackCount();
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
+
+        assertEquals(startWordsGuessedWrong + 1, testGame.getWordsGuessedWrong());
+        assertEquals(startCardGuessedCount + 1, testGame.getCardGuessedCount());
+        assertEquals(startCardStackCount - 2, testGame.getCardStackCount());
+        assertEquals(gamePutDTOTest.getGuessCorrect(), "wrong");
+    }
+
+    @Test
+    public void checkGuess_skipGuess() {
+        GamePutDTO gamePutDTO = new GamePutDTO();
+        ArrayList<String> words = new ArrayList<>();
+        words.add("Alcatraz");
+        words.add("Smoke");
+        words.add("Hazelnut");
+        words.add("Diamond");
+        words.add("Rose");
+        testGame.setWords(words);
+        testGame.setWordIndex(1);
+        testGame.setCardStackCount(2);
+        //Put a skip guess
+        gamePutDTO.setGuess("SKIP");
+        gamePutDTO.setWordIndex(testGame.getWordIndex());
+
+        int startCardStackCount = testGame.getCardStackCount();
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
+
+        assertEquals(startCardStackCount - 1, testGame.getCardStackCount());
+        assertEquals(gamePutDTOTest.getGuessCorrect(), "skip");
     }
 
     @Test
