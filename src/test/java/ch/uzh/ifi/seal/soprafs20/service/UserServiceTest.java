@@ -85,9 +85,9 @@ public class UserServiceTest {
     @Test
     public void login_success() {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
-        String token = userService.login("testUsername", "testPassword");
+        User user = userService.login("testUsername", "testPassword");
 
-        assertEquals(token, "supersecrettokenvalue");
+        assertEquals(user.getToken(), "supersecrettokenvalue");
     }
 
     @Test

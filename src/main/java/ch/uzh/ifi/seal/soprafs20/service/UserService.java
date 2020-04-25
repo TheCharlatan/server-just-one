@@ -64,7 +64,7 @@ public class UserService {
         return newUser;
     }
 
-    public String login(String username, String password) {
+    public User login(String username, String password) {
         User userByUsername = userRepository.findByUsername(username);
         if (userByUsername == null) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
@@ -72,7 +72,7 @@ public class UserService {
         if (!userByUsername.getPassword().equals(password)) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
         }
-        return userByUsername.getToken();
+        return userByUsername;
     }
 
     public void authenticate(String token) {

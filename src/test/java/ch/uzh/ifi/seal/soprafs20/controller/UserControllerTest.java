@@ -72,6 +72,11 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Basic bAD8AGwAOgBsAPwAbAA=");
 
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setToken("supersecrettokenvalue");
+        Mockito.when(userService.login(Mockito.any(), Mockito.any())).thenReturn(testUser);
+
         mockMvc.perform(getRequest)
                 .andExpect(status().isAccepted());
     }
