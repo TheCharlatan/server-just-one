@@ -128,7 +128,6 @@ public class GameServiceTest {
 
     @Test
     public void rejectWordTestTimeFailure(){
-
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
@@ -136,7 +135,6 @@ public class GameServiceTest {
 
     @Test
     public void rejectWordTestMoreThanThreeTimes(){
-
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.getLastWordIndex().add(1);
         testGame.getLastWordIndex().add(2);
@@ -147,7 +145,6 @@ public class GameServiceTest {
 
     @Test
     public void rejectWordSuccess(){
-
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setGameStatus(GameStatus.AWAITING_CLUES);
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
@@ -181,6 +178,7 @@ public class GameServiceTest {
         testGame.setCardStackCount(2);
         testGame.setWordsGuessedCorrect(3);
         testGame.setCardGuessedCount(4);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex()));
         gamePutDTO.setWordIndex(testGame.getWordIndex());
 
@@ -189,6 +187,7 @@ public class GameServiceTest {
         int startCardStackCount = testGame.getCardStackCount();
 
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
 
         GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
 
@@ -212,6 +211,8 @@ public class GameServiceTest {
         testGame.setCardStackCount(2);
         testGame.setWordsGuessedWrong(3);
         testGame.setCardGuessedCount(4);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+
         //Put a wrong guess
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex() + 1));
         gamePutDTO.setWordIndex(testGame.getWordIndex());
@@ -242,6 +243,7 @@ public class GameServiceTest {
         testGame.setWords(words);
         testGame.setWordIndex(1);
         testGame.setCardStackCount(2);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         //Put a skip guess
         gamePutDTO.setGuess("SKIP");
         gamePutDTO.setWordIndex(testGame.getWordIndex());
@@ -249,6 +251,7 @@ public class GameServiceTest {
         int startCardStackCount = testGame.getCardStackCount();
 
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
 
         GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
 
