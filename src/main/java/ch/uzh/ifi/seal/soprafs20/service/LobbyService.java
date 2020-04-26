@@ -4,7 +4,6 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
@@ -45,7 +44,7 @@ public class LobbyService {
 
         newLobby = lobbyRepository.save(newLobby);
 
-        User user = userRepository.getOne(newLobby.gethostPlayerId());
+        User user = userRepository.getOne(newLobby.getHostPlayerId());
         user.setLobbyId(newLobby.getId());
         userRepository.save(user);
 
@@ -94,10 +93,11 @@ public class LobbyService {
         }
 
         //Checking if the user exists before adding the user to lobby
-        userRepository.findById(userId)
-                .orElseThrow(
-                        () -> new LobbyException(String.format("User with id: %d doesn't exist", userId))
-                );
+        try {
+            userRepository.findById(userId);
+        } catch (Exception e) {
+            throw new LobbyException(String.format("User with id: %d doesn't exist", userId));
+        }
         String baseErrorMessage = "The lobby cannot have more than 7 player. Please join different lobby";
 
         //Size of lobby is limited to maximum of 7 players.

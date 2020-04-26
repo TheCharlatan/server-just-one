@@ -109,11 +109,8 @@ public class GameService {
         if (resource == null) {
             throw new IllegalArgumentException("The cards word list file was not found!");
         }
-        BufferedReader reader;
         ArrayList<String> words = new ArrayList<>();
-        try {
-            reader = new BufferedReader(new FileReader(
-                        resource.getFile()));
+        try(BufferedReader reader = new BufferedReader(new FileReader(resource.getFile()));) {
             String line = reader.readLine();
             while (line != null) {
                 if (!line.equals("")) {
@@ -121,7 +118,6 @@ public class GameService {
                 }
                 line = reader.readLine();
             }
-            reader.close();
         } catch (IOException e) {
             throw new ServiceException("Error while reading word list");
         }
@@ -359,7 +355,6 @@ public class GameService {
 
         List<String> clues = game.getClues();
         if (!wordChecker.checkEnglishWord(word)) {
-            //throw new ServiceException("The clue submitted is not an English word");
             //Need to add REJECTED to the list in order to check if all the clues have been received or not.
             //So removing the exception statement.
             clues.add("REJECTED");
