@@ -43,7 +43,7 @@ public class User implements Serializable {
     @Column()
     @ElementCollection
 
-    private List<Long> invitations = new ArrayList<Long>();
+    private List<Long> invitations = new ArrayList<>();
 
     @Column
     private int rank;

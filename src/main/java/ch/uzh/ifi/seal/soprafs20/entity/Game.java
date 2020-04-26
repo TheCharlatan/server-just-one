@@ -28,7 +28,7 @@ public class Game implements Serializable {
 
     @Column()
     @ElementCollection
-    private List<Long> playerIds = new ArrayList<Long>();
+    private List<Long> playerIds = new ArrayList<>();
 
     @Column(nullable = false)
     private int round;
@@ -38,7 +38,7 @@ public class Game implements Serializable {
 
     @Column()
     @ElementCollection
-    private List<String> words = new ArrayList<String>();
+    private List<String> words = new ArrayList<>();
 
     @Column(nullable = false)
     private int wordIndex;
@@ -55,7 +55,7 @@ public class Game implements Serializable {
 
     @Column()
     @ElementCollection
-    private List<String> clues = new ArrayList<String>();
+    private List<String> clues = new ArrayList<>();
 
     @Column
     @ElementCollection

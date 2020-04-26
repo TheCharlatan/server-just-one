@@ -1,7 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
-
 public class ChatMessageDTO {
 
     private String message;

@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,7 @@ public class UserService {
     }
 
     public User getUser(long id){
-        User user = userRepository.getOne(id);
-        return user;
+        return getExistingUser(id);
     }
 
     public User createUser(User newUser) {
@@ -57,7 +57,7 @@ public class UserService {
 
         // saves the given entity but data is only persisted in the database once flush() is called
         newUser = userRepository.save(newUser);
-        log.info("Get new user "+newUser.toString());
+        log.info(String.format("Get new user %s", newUser.toString()));
         userRepository.flush();
 
         log.debug("Created Information for User: {}", newUser);
@@ -83,13 +83,7 @@ public class UserService {
     }
 
     public void invite(long userId, long lobbyId) {
-        Optional<User> optionalInvitedUser = userRepository.findById(userId);
-        User invitedUser;
-        try {
-            invitedUser = optionalInvitedUser.get();
-        } catch (Exception e) {
-            throw new ServiceException("Invitation failed, user could not be found");
-        }
+        User invitedUser = getExistingUser(userId);
         List<Long> invitations = invitedUser.getInvitations();
         invitations.add(lobbyId);
         invitedUser.setInvitations(invitations);
@@ -97,6 +91,14 @@ public class UserService {
         userRepository.flush();
 
         log.debug("Add invitation to lobby {} for User: {}", userId, lobbyId);
+    }
+
+    private User getExistingUser(long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+        }
+        return optionalUser.get();
     }
 
     /**

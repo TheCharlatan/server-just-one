@@ -6,8 +6,6 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,8 +24,6 @@ import java.util.List;
 @RestController
 public class LobbyController {
 
-    private final Logger log = LoggerFactory.getLogger(LobbyController.class);
-
     private final LobbyService lobbyService;
 
     LobbyController(LobbyService lobbyService) {
@@ -35,8 +31,7 @@ public class LobbyController {
     }
 
     @PostMapping("/lobby")
-    public ResponseEntity createLobby(@RequestHeader("X-Auth-Token") String token, @RequestBody LobbyPostDTO lobbyPostDTO) {
-        // FIXME expand to the created lobby's id
+    public ResponseEntity<String> createLobby(@RequestHeader("X-Auth-Token") String token, @RequestBody LobbyPostDTO lobbyPostDTO) {
         Lobby lobby  = DTOMapper.INSTANCE.convertLobbyPostDTOToEntity(lobbyPostDTO);
 
         long lobbyId = lobbyService.createLobby(lobby);
@@ -61,8 +56,7 @@ public class LobbyController {
     @ResponseBody
     public LobbyGetDTO getLobbyInfo(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
         Lobby lobby = lobbyService.getLobby(id);
-        LobbyGetDTO lobbyInfoDTO = DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
-        return lobbyInfoDTO;
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
     @PutMapping("/lobby/{id}")
@@ -82,9 +76,9 @@ public class LobbyController {
     @GetMapping("/lobby/{id}/chat")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ArrayList<ChatMessageDTO> getChatMessages(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
+    public List<ChatMessageDTO> getChatMessages(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<ChatMessageDTO>();
+        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<>();
         chatHistory.add(chatMessageDTO);
         return chatHistory;
     }
@@ -93,6 +87,5 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public void addChatMessage(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody ChatMessageDTO chatMessageDTO) {
-        return;
     }
 }

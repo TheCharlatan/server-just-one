@@ -58,8 +58,6 @@ public class LobbyServiceTest {
 
     @Test
     public void createdLobby_validInputs_success(){
-
-
         //Mockito.verify(lobbyRepository, Mockito.times(1)).save(Mockito.any());
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(Optional.of(lobbyTest));
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
@@ -85,13 +83,10 @@ public class LobbyServiceTest {
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(lobbyTest));
         lobbyService.createLobby(lobbyTest);
         assertThrows(LobbyException.class,()->lobbyService.addPlayerToLobby(1L,1L));
-
-
     }
 
     @Test
     public void addUserToLobby(){
-
         List<Long> playerList  = new ArrayList<>();
         Long[] longList = new Long[]{3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
@@ -100,20 +95,16 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
         lobbyService.createLobby(lobbyTest);
 
-
-
         Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
         Mockito.when(userRepository.findById(2L)).thenReturn(java.util.Optional.ofNullable(testUser));
+        Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
         lobbyService.addPlayerToLobby(1L,2L);
-        assertEquals(lobbyTest.getPlayerIds().size(),7);
-
+        assertEquals(7, lobbyTest.getPlayerIds().size());
     }
 
     @Test
     public void addExistingUserToLobby(){
-
-
         List<Long> playerList  = new ArrayList<>();
         Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
@@ -125,13 +116,10 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
         assertThrows(LobbyException.class,()->lobbyService.addPlayerToLobby(1L,1L));
-
-
     }
 
     @Test
     public void addMoreThanSevenPlayerToLobby(){
-
         List<Long> playerList  = new ArrayList<>();
         Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
@@ -143,12 +131,10 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
         assertThrows(LobbyException.class,()->lobbyService.addPlayerToLobby(1L,8L));
-
     }
 
     @Test
     public void removePlayerFromLobby(){
-
         List<Long> playerList  = new ArrayList<>();
         Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
@@ -158,15 +144,14 @@ public class LobbyServiceTest {
 
         Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
+        Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
         lobbyService.removePlayerFromLobby(1l,1l);
-        assertEquals(lobbyTest.getPlayerIds().contains(1),false);
-
+        assertEquals(false, lobbyTest.getPlayerIds().contains(1));
     }
 
     @Test
     public void notAvailablePlayerFromLobby(){
-
         List<Long> playerList  = new ArrayList<>();
         Long[] longList = new Long[]{1L,2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);

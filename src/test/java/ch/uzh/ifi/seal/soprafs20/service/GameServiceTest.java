@@ -150,9 +150,8 @@ public class GameServiceTest {
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         gameService.rejectWord(1L);
 
-        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_INDEX);
-        assertEquals(testGame.getCardStatus(), CardStatus.USER_REJECTED_WORD);
-
+        assertEquals(GameStatus.AWAITING_INDEX, testGame.getGameStatus());
+        assertEquals(CardStatus.USER_REJECTED_WORD, testGame.getCardStatus());
     }
 
     @Test
@@ -194,7 +193,7 @@ public class GameServiceTest {
         assertEquals(startWordsGuessedCorrect + 1, testGame.getWordsGuessedCorrect());
         assertEquals(startCardGuessedCount + 1, testGame.getCardGuessedCount());
         assertEquals(startCardStackCount - 1, testGame.getCardStackCount());
-        assertEquals(gamePutDTOTest.getGuessCorrect(), "correct");
+        assertEquals("correct", gamePutDTOTest.getGuessCorrect());
     }
 
     @Test
@@ -311,8 +310,7 @@ public class GameServiceTest {
         testGame.setPlayerIds(playerIdList);
 
         gameService.submitWord(1L,"asfdj");
-        assertEquals(testGame.getCardStatus(),CardStatus.NO_VALID_CLUE_ENTERED);
-
+        assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
     }
 
 
