@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.net.URI;
 
 
@@ -32,7 +29,7 @@ public class GameController {
     }
 
     @PostMapping("/game")
-    public ResponseEntity createGame(@RequestHeader("X-Auth-Token") String token, @RequestBody GamePostDTO gamePostDTO) {
+    public ResponseEntity<String> createGame(@RequestHeader("X-Auth-Token") String token, @RequestBody GamePostDTO gamePostDTO) {
         long gameId = gameService.createGame(gamePostDTO.getPlayerIds());
 
         URI location = ServletUriComponentsBuilder
@@ -59,7 +56,6 @@ public class GameController {
             @PathVariable("id") long id,
             @RequestBody GamePutDTO gamePutDTO) {
         gameService.chooseWord(id, gamePutDTO.getWordIndex());
-        return;
     }
 
     @DeleteMapping("/game/{id}/number")

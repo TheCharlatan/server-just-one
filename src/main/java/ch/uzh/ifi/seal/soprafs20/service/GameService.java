@@ -38,6 +38,7 @@ public class GameService {
 
     private GameRepository gameRepository;
     private UserRepository userRepository;
+    private Random rand = new Random();
 
     @Autowired
     public GameService(@Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("userRepository") UserRepository userRepository) {
@@ -59,7 +60,6 @@ public class GameService {
         newGame.setRound(1);
 
         newGame.setRoundScore(0);
-        //newGame.setScore(0);
         newGame.setActivePlayerId(newGame.getPlayerIds().get(0));
 
         newGame.setWords(selectGameWords());
@@ -91,9 +91,8 @@ public class GameService {
     private ArrayList<String> selectGameWords() {
         // select 5 * 13 random unique words from the english word list
         // 5 * 13 from 5 words every round for 13 rounds
-        ArrayList<String> gameWords = new ArrayList<String>();
+        ArrayList<String> gameWords = new ArrayList<>();
         ArrayList<String> allWords = getAllWordsFromWordList();
-        Random rand = new Random();
         for (int i =0; i < 5*13; i++) {
             int randomIndex = rand.nextInt(allWords.size());
             gameWords.add(allWords.get(randomIndex));
@@ -111,7 +110,7 @@ public class GameService {
             throw new IllegalArgumentException("The cards word list file was not found!");
         }
         BufferedReader reader;
-        ArrayList<String> words = new ArrayList<String>();
+        ArrayList<String> words = new ArrayList<>();
         try {
             reader = new BufferedReader(new FileReader(
                         resource.getFile()));
@@ -122,6 +121,7 @@ public class GameService {
                 }
                 line = reader.readLine();
             }
+            reader.close();
         } catch (IOException e) {
             throw new ServiceException("Error while reading word list");
         }
@@ -191,12 +191,12 @@ public class GameService {
         gameRepository.flush();
     }
 
-
-    public Game getExistingGame(Long id) {
-        if(!gameRepository.findById(id).isPresent()) {
-            throw new NotFoundException(String.format("The game could not be found!", id));
+    public Game getExistingGame(long id) {
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        if (!optionalGame.isPresent()) {
+            throw new NotFoundException(String.format("Could not find game with id %d.", id));
         }
-        return gameRepository.findById(id).get();
+        return optionalGame.get();
     }
 
     // checks if the mysteryWord matches with the guess
@@ -264,7 +264,7 @@ public class GameService {
         game.setActivePlayerId(game.getPlayerIds().get(activePlayerIndex));
 
         // reset the clues
-        List<String> clues = new ArrayList<String>();
+        List<String> clues = new ArrayList<>();
         game.setClues(clues);
 
         //reset the card Index

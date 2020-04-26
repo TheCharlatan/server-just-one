@@ -4,12 +4,11 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 
 /**
  * Lobby Service
@@ -29,8 +28,6 @@ import java.util.List;
 @Transactional
 public class LobbyService {
 
-
-    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
 
     private final LobbyRepository lobbyRepository;
     private final UserRepository userRepository;
@@ -117,17 +114,12 @@ public class LobbyService {
         saveOrUpdate(lobby);
     }
 
-    public Lobby getLobby(Long id){
-
-        Lobby lobby = this.lobbyRepository.getOne(id);
-
-        //Lobby lobby = this.lobbyRepository.findById(id).get();
-
-        String baseErrorMessage = "The lobby %d doesn't exist. Please check the lobby which you are joining";
-        if(null == lobby){
-            throw new LobbyException(baseErrorMessage);
+    public Lobby getLobby(Long id) {
+        Optional<Lobby> optionalLobby = lobbyRepository.findById(id);
+        if (!optionalLobby.isPresent()) {
+            throw new LobbyException(String.format("Could not find lobby with id %d.", id));
         }
-        return lobby;
+        return optionalLobby.get();
     }
 
     public void checkIfLobbyExist(Lobby lobbyToBeCreated) {
@@ -142,5 +134,5 @@ public class LobbyService {
             throw new LobbyException(String.format(baseErrorMessage, "lobby name"));
         }
     }
-    
+
 }
