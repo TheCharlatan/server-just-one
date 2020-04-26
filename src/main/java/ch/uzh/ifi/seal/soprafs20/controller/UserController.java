@@ -66,10 +66,7 @@ public class UserController {
     @ResponseBody
     public UserGetDTO getUserById(@RequestHeader("X-Auth-Token") String token, @PathVariable Long userId){
         User user = userService.getUser(userId);
-
-        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
-        return  userGetDTO;
-
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
     @GetMapping("/user/login")
@@ -91,7 +88,6 @@ public class UserController {
         }
         // now call the user service with authStrings[0] and authStrings[1]
         User user = userService.login(username, password);
-        String token = user.getToken();
         Long id = user.getId();
         return new UserAuthDTO(user.getToken(), id);
     }

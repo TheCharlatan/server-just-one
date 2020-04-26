@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +23,7 @@ public class OverviewController {
     @ResponseBody
     public List<ChatMessageDTO> getChatMessages(@RequestHeader("X-Auth-Token") String token) {
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<ChatMessageDTO>();
+        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<>();
         chatHistory.add(chatMessageDTO);
         return chatHistory;
     }

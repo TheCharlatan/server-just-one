@@ -86,14 +86,6 @@ public class Lobby implements Serializable {
         this.name = name;
     }
 
-    public Long gethostPlayerId() {
-        return hostPlayerId;
-    }
-
-    public void sethostPlayerId(Long hostPlayerId) {
-        this.hostPlayerId = hostPlayerId;
-    }
-
     public List<Long> getPlayerIds() {
         return playerIds;
     }

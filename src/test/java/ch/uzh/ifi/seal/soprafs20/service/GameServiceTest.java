@@ -227,7 +227,7 @@ public class GameServiceTest {
         assertEquals(startWordsGuessedWrong + 1, testGame.getWordsGuessedWrong());
         assertEquals(startCardGuessedCount + 1, testGame.getCardGuessedCount());
         assertEquals(startCardStackCount - 2, testGame.getCardStackCount());
-        assertEquals(gamePutDTOTest.getGuessCorrect(), "wrong");
+        assertEquals("wrong", gamePutDTOTest.getGuessCorrect());
     }
 
     @Test
@@ -255,7 +255,7 @@ public class GameServiceTest {
         GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
 
         assertEquals(startCardStackCount - 1, testGame.getCardStackCount());
-        assertEquals(gamePutDTOTest.getGuessCorrect(), "skip");
+        assertEquals("skip", gamePutDTOTest.getGuessCorrect());
     }
 
     @Test
