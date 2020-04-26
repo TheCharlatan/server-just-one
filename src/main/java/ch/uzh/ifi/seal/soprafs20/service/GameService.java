@@ -206,7 +206,6 @@ public class GameService {
         Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
-
         LocalTime guessTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
@@ -225,7 +224,7 @@ public class GameService {
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
 
-            game.setCardStackCount(game.getCardGuessedCount() - 1);
+            game.setCardStackCount(game.getCardStackCount() - 1);
 
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)+100);
 
