@@ -22,6 +22,8 @@ import java.time.LocalTime;
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URL;
 
@@ -88,7 +90,7 @@ public class GameService {
         return gameId;
     }
 
-    private ArrayList<String> selectGameWords() {
+    public ArrayList<String> selectGameWords() {
         // select 5 * 13 random unique words from the english word list
         // 5 * 13 from 5 words every round for 13 rounds
         ArrayList<String> gameWords = new ArrayList<>();
@@ -101,16 +103,16 @@ public class GameService {
         return gameWords;
     }
 
-    private ArrayList<String> getAllWordsFromWordList() {
+    public ArrayList<String> getAllWordsFromWordList() {
         // Read in the entire word list and return it as a ArrayList of strings.
         String filename = "cards-EN.txt";
         ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(filename);
+        InputStream resource = classLoader.getResourceAsStream(filename);
         if (resource == null) {
             throw new IllegalArgumentException("The cards word list file was not found!");
         }
         ArrayList<String> words = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new FileReader(resource.getFile()));) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(resource));) {
             String line = reader.readLine();
             while (line != null) {
                 if (!line.equals("")) {
