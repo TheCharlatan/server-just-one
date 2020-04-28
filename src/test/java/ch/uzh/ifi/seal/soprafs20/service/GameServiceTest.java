@@ -313,29 +313,22 @@ public class GameServiceTest {
         assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
     }
 
+    @Test
+    public void getAllWordsFromList_Full() {
+        ArrayList<String> words = gameService.getAllWordsFromWordList();
+        for (String word: words) {
+            assert (!word.equals(""));
+        }
+        assert(words.get(0).equals("Alcatraz"));
+        assert(words.get(274).equals("Book"));
+    }
 
-    /* These are some tests for the private methods. They are commented sinc private methods cannot be
-     * tested under normal circumstances and cannot be tested under normal circumstances. They are kept
-     * here to still allow some quick implementation testing.
-     */
-
-    //@Test
-    //public void getAllWordsFromList_Full() {
-    //    ArrayList<String> words = gameService.getAllWordsFromWordList();
-    //    for (String word: words) {
-    //        assert (!word.equals(""));
-    //    }
-    //    assert(words.get(0).equals("Alcatraz"));
-    //    assert(words.get(274).equals("Book"));
-    //}
-
-    //@Test
-    //public void selectGameWords() {
-    //    ArrayList<String> words = gameService.selectGameWords();
-    //    assert(words.size() == 5*13);
-    //    for (String word: words) {
-    //        assert (!word.equals(""));
-    //    }
-    //}
-
+    @Test
+    public void selectGameWords() {
+        ArrayList<String> words = gameService.selectGameWords();
+        assert(words.size() == 5*13);
+        for (String word: words) {
+            assert (!word.equals(""));
+        }
+    }
 }
