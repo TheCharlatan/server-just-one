@@ -10,6 +10,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,6 +36,8 @@ public class GameServiceTest {
     private GameRepository gameRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private WordCheck wordChecker;
 
     @InjectMocks
     private GameService gameService;
@@ -363,6 +366,25 @@ public class GameServiceTest {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
         assertThrows(ServiceException.class, ()->gameService.checkTimeForClue(testGame));
+    }
+
+    @Test
+    public void clueAccepted() {
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"word");
+        assert(testGame.getClues().size() >= 1);
+        for (String clue: testGame.getClues()) {
+            assertEquals("word", clue);
+        }
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"word");
+        assert(testGame.getClues().size() >= 2);
+        for (String clue: testGame.getClues()) {
+            assertEquals("word", clue);
+        }
     }
 
     @Test
