@@ -21,11 +21,9 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Game Service
@@ -77,10 +75,7 @@ public class GameService {
         // add the game id to the players and remove them from the lobby
         List<Long> playerIds = newGame.getPlayerIds();
         for (Long playerId: playerIds) {
-            User user = userRepository.findById(playerId)
-                .orElseThrow(
-                    () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-                );
+            User user = getExistingUser(playerId);
             user.setGameId(gameId);
             userRepository.save(user);
             userRepository.flush();
@@ -197,6 +192,14 @@ public class GameService {
         return optionalGame.get();
     }
 
+    public User getExistingUser(long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+        }
+        return optionalUser.get();
+    }
+
     // checks if the mysteryWord matches with the guess
     public GamePutDTO checkGuess(GamePutDTO gamePutDTO, long id) {
         int index = gamePutDTO.getWordIndex();
@@ -293,10 +296,7 @@ public class GameService {
         // add the game id to the players and remove them from the lobby
         //
 
-        User user = userRepository.findById(playerId)
-            .orElseThrow(
-                () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-            );
+        User user = getExistingUser(playerId);
         user.setGameId(0);
         userRepository.save(user);
         userRepository.flush();
@@ -337,10 +337,7 @@ public class GameService {
     }
 
     public void updateUserScore(long playerId, int score){
-        User user = userRepository.findById(playerId)
-                .orElseThrow(
-                        () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-                );
+        User user = getExistingUser(playerId);
         user.setScore(user.getScore()+score);
         userRepository.save(user);
         userRepository.flush();
@@ -348,10 +345,7 @@ public class GameService {
 
     public void submitWord(long id, String word) {
         WordCheck wordChecker = new WordCheck();
-        Game game = gameRepository.findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException(String.format("A game with the id %id was not found", id))
-                );
+        Game game = getExistingGame(id);
 
         long elapsedSeconds = checkTimeForClue(game);
 

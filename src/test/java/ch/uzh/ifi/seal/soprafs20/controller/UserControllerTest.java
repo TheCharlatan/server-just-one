@@ -73,6 +73,16 @@ public class UserControllerTest {
     }
 
     @Test
+    public void getUsers() throws Exception{
+        MockHttpServletRequestBuilder getRequest = get("/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Auth-Token","supersecrettokenvalue");
+
+        mockMvc.perform(getRequest).andExpect(status().isOk());
+    }
+
+
+    @Test
     public void login() throws Exception{
         MockHttpServletRequestBuilder getRequest = get("/user/login")
                 .contentType(MediaType.APPLICATION_JSON)

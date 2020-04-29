@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
@@ -74,6 +75,17 @@ public class GameServiceTest {
     }
 
     @Test
+    public void createGame_playerNotFound() {
+        ArrayList<Long> playerIds = new ArrayList<Long>();
+        playerIds.add(0L);
+        playerIds.add(1L);
+        playerIds.add(2L);
+
+        assertThrows(NotFoundException.class,()->gameService.createGame(playerIds));
+    }
+
+
+    @Test
     public void createGame_NotEnoughPlayers_throwsException() {
         ArrayList<Long> playerIds = new ArrayList<Long>();
         playerIds.add(0L);
@@ -114,37 +126,49 @@ public class GameServiceTest {
     }
 
     @Test
-    public void chooseWordExceptionForInvalidNo(){
+    public void chooseWordExceptionForInvalidNo() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         assertThrows(ServiceException.class,()->gameService.chooseWord(testGame.getId(), 7));
     }
 
     @Test
-    public void chooseWordExceptionForSameChoiceInCaseOfRejection(){
+    public void chooseWordExceptionForSameChoiceInCaseOfRejection() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.getLastWordIndex().add(1);
         assertThrows(ServiceException.class,()->gameService.chooseWord(testGame.getId(), 1));
     }
 
     @Test
-    public void rejectWordTestTimeFailure(){
+    public void rejectWordTestTimeFailure() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
     }
 
     @Test
-    public void rejectWordTestMoreThanThreeTimes(){
+    public void rejectWordTestMoreThanThreeTimes() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.getLastWordIndex().add(1);
         testGame.getLastWordIndex().add(2);
         testGame.getLastWordIndex().add(3);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        testGame.getLastWordIndex().add(4);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
     }
 
     @Test
-    public void rejectWordSuccess(){
+    public void rejectWord_wrongStateThrowsException() {
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.getLastWordIndex().add(1);
+        testGame.getLastWordIndex().add(2);
+        testGame.getLastWordIndex().add(3);
+        testGame.setGameStatus(GameStatus.AWAITING_GUESS);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
+    }
+
+    @Test
+    public void rejectWordSuccess() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setGameStatus(GameStatus.AWAITING_CLUES);
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
@@ -160,6 +184,23 @@ public class GameServiceTest {
         Game game = gameService.getExistingGame(1L);
 
         assertEquals(game, testGame);
+    }
+
+    @Test
+    public void getExistingGame_notFoundException() {
+        assertThrows(NotFoundException.class, ()->gameService.getExistingGame(1L));
+    }
+
+    @Test
+    public void getExstingUser_sucess() {
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        User user = gameService.getExistingUser(1L);
+        assertEquals(user, testUser);
+    }
+
+    @Test
+    public void getExstingUser_notFoundException() {
+        assertThrows(NotFoundException.class, ()->gameService.getExistingUser(1L));
     }
 
     @Test
