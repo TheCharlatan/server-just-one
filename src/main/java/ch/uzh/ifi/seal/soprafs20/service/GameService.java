@@ -204,17 +204,24 @@ public class GameService {
         Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
+        // guess took too long
         LocalTime guessTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
-
+        if(elapsedSeconds>30){
+            game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
+            gamePutDTO.setGuessCorrect("timeout");
+            //Handle according to a wrong guess -> this card and the next card is put away
+            game.setCardStackCount(game.getCardStackCount() - 2);
+            game.setCardGuessedCount(game.getCardGuessedCount() + 1);
+            game.setWordsGuessedWrong(game.getWordsGuessedWrong() + 1);
+        }
         //Skipped Guess
-        if (guess.equals("SKIP")) {
+        else if (guess.equals("SKIP")) {
             gamePutDTO.setGuessCorrect("skip");
             //handle according to a skipped guess -> the card is put away
             game.setCardStackCount(game.getCardStackCount() - 1);
         }
-
         //Successful Guess
         else if (mysteryWord.equals(guess)) {
             gamePutDTO.setGuessCorrect("correct");
@@ -308,12 +315,8 @@ public class GameService {
         }
     }
 
-
-
     static boolean allCluesRejected(List<?> templist, int compareSize) {
-
         return Collections.frequency(templist, "REJECTED") == compareSize;
-
     }
 
     /*

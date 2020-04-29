@@ -259,6 +259,38 @@ public class GameServiceTest {
     }
 
     @Test
+    public void checkGuess_timeoutGuess() {
+        ArrayList<String> words = new ArrayList<>();
+        words.add("Alcatraz");
+        words.add("Smoke");
+        words.add("Hazelnut");
+        words.add("Diamond");
+        words.add("Rose");
+        testGame.setWords(words);
+        testGame.setWordIndex(1);
+        testGame.setCardStackCount(2);
+        testGame.setWordsGuessedWrong(3);
+        testGame.setCardGuessedCount(4);
+        testGame.setTimestamp(java.time.LocalTime.now().minus(31, ChronoUnit.SECONDS));
+        GamePutDTO gamePutDTO = new GamePutDTO();
+        gamePutDTO.setGuess("test");
+        gamePutDTO.setWordIndex(testGame.getWordIndex());
+
+        int startWordsGuessedWrong = testGame.getWordsGuessedWrong();
+        int startCardGuessedCount = testGame.getCardGuessedCount();
+        int startCardStackCount = testGame.getCardStackCount();
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        GamePutDTO gamePutDTOTest = gameService.checkGuess(gamePutDTO, testGame.getId());
+
+        assertEquals(startWordsGuessedWrong + 1, testGame.getWordsGuessedWrong());
+        assertEquals(startCardGuessedCount + 1, testGame.getCardGuessedCount());
+        assertEquals(startCardStackCount - 2, testGame.getCardStackCount());
+        assertEquals("timeout", gamePutDTOTest.getGuessCorrect());
+    }
+
+    @Test
     public void wrapup_playerLeavesGame () {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
