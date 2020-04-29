@@ -56,6 +56,8 @@ public interface DTOMapper {
     @Mapping(source = "activePlayerId", target = "activePlayer")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "cardStatus", target ="cardStatus")
+    @Mapping(source = "wordIndex", target = "wordIndex")
+    @Mapping(source = "words", target = "words")
     GameGetDTO convertEntityToGameGetDTO(Game game);
 
     @Mapping(source = "playerIds", target = "playerIds")
