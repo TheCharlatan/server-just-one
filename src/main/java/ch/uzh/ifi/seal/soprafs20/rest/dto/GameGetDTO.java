@@ -23,6 +23,15 @@ public class GameGetDTO {
     private int cardStackCount;
     private int cardGuessedCount;
 
+    private int wordIndex;
+    private List<String> words;
+
+    public int getWordIndex() {return wordIndex;}
+    public List<String> getWords() {return words;}
+    
+    public void setWordIndex(int wordIndex) {this.wordIndex = wordIndex;}
+    public void setWords(List<String> words) {this.words = words;}
+
     public int getWordsGuessedCorrect() {return wordsGuessedCorrect;}
     public int getWordsGuessedWrong() {return wordsGuessedWrong;}
     public int getCardStackCount() {return cardStackCount;}
