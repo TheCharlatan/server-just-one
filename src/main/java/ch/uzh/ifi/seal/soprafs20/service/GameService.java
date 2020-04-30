@@ -207,13 +207,14 @@ public class GameService {
         Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
-        // guess took too long
+        // check if guess took too long
+        GamePutDTO returnedDTO = new GamePutDTO();
         LocalTime guessTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
         if(elapsedSeconds>30){
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
-            gamePutDTO.setGuessCorrect("timeout");
+            returnedDTO.setGuessCorrect("timeout");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
@@ -221,13 +222,13 @@ public class GameService {
         }
         //Skipped Guess
         else if (guess.equals("SKIP")) {
-            gamePutDTO.setGuessCorrect("skip");
+            returnedDTO.setGuessCorrect("skip");
             //handle according to a skipped guess -> the card is put away
             game.setCardStackCount(game.getCardStackCount() - 1);
         }
         //Successful Guess
         else if (mysteryWord.equals(guess)) {
-            gamePutDTO.setGuessCorrect("correct");
+            returnedDTO.setGuessCorrect("correct");
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
@@ -240,7 +241,7 @@ public class GameService {
         // Wrong Guess
         else {
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
-            gamePutDTO.setGuessCorrect("wrong");
+            returnedDTO.setGuessCorrect("wrong");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
@@ -254,7 +255,7 @@ public class GameService {
 
         gameRepository.save(game);
         gameRepository.flush();
-        return gamePutDTO;
+        return returnedDTO;
     }
 
     private void roundEnd (Game game) {
