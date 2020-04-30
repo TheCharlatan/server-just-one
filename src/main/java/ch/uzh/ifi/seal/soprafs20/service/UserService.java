@@ -115,4 +115,9 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username and the name", "are"));
         }
     }
+
+    public void logout(Long userId) {
+        User user = getExistingUser(userId);
+        user.setStatus(UserStatus.OFFLINE);
+    }
 }
