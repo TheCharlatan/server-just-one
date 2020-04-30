@@ -30,7 +30,7 @@ public class WordCheck {
                 return false;
             }
         } catch (Exception e) {
-            throw new ServiceException(e.getMessage());
+            throw new ServiceException("Could not connect to dicionary at wordsapi");
         }
         return true;
     }
