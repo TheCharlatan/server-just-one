@@ -47,7 +47,6 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseStatusException handleTransactionSystemException(Exception ex, HttpServletRequest request) {
-        log.error("Request: {} raised: {}", request.getRequestURL(), ex.getMessage());
         return new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
     }
 
