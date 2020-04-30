@@ -15,6 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserServiceTest {
 
@@ -41,6 +44,22 @@ public class UserServiceTest {
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
+    }
+
+    @Test
+    public void getUsers_success() {
+        ArrayList<User> userList = new ArrayList<>();
+        userList.add(testUser);
+        Mockito.when(userRepository.findAll()).thenReturn(userList);
+        List<User> users =  userService.getUsers();
+        assertEquals(userList, users);
+    }
+
+    @Test
+    public void getUser_success() {
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        User user =  userService.getUser(1l);
+        assertEquals(testUser, user);
     }
 
     @Test
@@ -104,10 +123,27 @@ public class UserServiceTest {
     }
 
     @Test
+
     public void logout_success() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         userService.logout(1L);
 
         assertEquals(UserStatus.OFFLINE, testUser.getStatus());
+    }
+
+    @Test
+    public void authenticate() {
+        Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
+        assertThrows(AuthenticationException.class, () -> userService.authenticate("testUsern"));
+    }
+
+    @Test
+    public void invite() {
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        List<Long> invitations = testUser.getInvitations();
+        invitations.add(1l);
+
+        userService.invite(1l, 1l);
+        assertEquals(testUser.getInvitations(), invitations);
     }
 }

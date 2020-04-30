@@ -21,11 +21,9 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Game Service
@@ -41,6 +39,8 @@ public class GameService {
     private GameRepository gameRepository;
     private UserRepository userRepository;
     private Random rand = new Random();
+    private WordCheck wordChecker = new WordCheck();
+
 
     @Autowired
     public GameService(@Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("userRepository") UserRepository userRepository) {
@@ -77,10 +77,7 @@ public class GameService {
         // add the game id to the players and remove them from the lobby
         List<Long> playerIds = newGame.getPlayerIds();
         for (Long playerId: playerIds) {
-            User user = userRepository.findById(playerId)
-                .orElseThrow(
-                    () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-                );
+            User user = getExistingUser(playerId);
             user.setGameId(gameId);
             userRepository.save(user);
             userRepository.flush();
@@ -197,6 +194,14 @@ public class GameService {
         return optionalGame.get();
     }
 
+    public User getExistingUser(long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+        }
+        return optionalUser.get();
+    }
+
     // checks if the mysteryWord matches with the guess
     public GamePutDTO checkGuess(GamePutDTO gamePutDTO, long id) {
         int index = gamePutDTO.getWordIndex();
@@ -204,20 +209,28 @@ public class GameService {
         Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
+        // check if guess took too long
+        GamePutDTO returnedDTO = new GamePutDTO();
         LocalTime guessTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
-
+        if(elapsedSeconds>30){
+            game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
+            returnedDTO.setGuessCorrect("timeout");
+            //Handle according to a wrong guess -> this card and the next card is put away
+            game.setCardStackCount(game.getCardStackCount() - 2);
+            game.setCardGuessedCount(game.getCardGuessedCount() + 1);
+            game.setWordsGuessedWrong(game.getWordsGuessedWrong() + 1);
+        }
         //Skipped Guess
-        if (guess.equals("SKIP")) {
-            gamePutDTO.setGuessCorrect("skip");
+        else if (guess.equals("SKIP")) {
+            returnedDTO.setGuessCorrect("skip");
             //handle according to a skipped guess -> the card is put away
             game.setCardStackCount(game.getCardStackCount() - 1);
         }
-
         //Successful Guess
         else if (mysteryWord.equals(guess)) {
-            gamePutDTO.setGuessCorrect("correct");
+            returnedDTO.setGuessCorrect("correct");
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
@@ -230,7 +243,7 @@ public class GameService {
         // Wrong Guess
         else {
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
-            gamePutDTO.setGuessCorrect("wrong");
+            returnedDTO.setGuessCorrect("wrong");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
@@ -244,7 +257,7 @@ public class GameService {
 
         gameRepository.save(game);
         gameRepository.flush();
-        return gamePutDTO;
+        return returnedDTO;
     }
 
     private void roundEnd (Game game) {
@@ -293,10 +306,7 @@ public class GameService {
         // add the game id to the players and remove them from the lobby
         //
 
-        User user = userRepository.findById(playerId)
-            .orElseThrow(
-                () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-            );
+        User user = getExistingUser(playerId);
         user.setGameId(0);
         userRepository.save(user);
         userRepository.flush();
@@ -308,12 +318,8 @@ public class GameService {
         }
     }
 
-
-
     static boolean allCluesRejected(List<?> templist, int compareSize) {
-
         return Collections.frequency(templist, "REJECTED") == compareSize;
-
     }
 
     /*
@@ -337,25 +343,17 @@ public class GameService {
     }
 
     public void updateUserScore(long playerId, int score){
-        User user = userRepository.findById(playerId)
-                .orElseThrow(
-                        () -> new NotFoundException(String.format("A user with the id %d was not found", playerId))
-                );
+        User user = getExistingUser(playerId);
         user.setScore(user.getScore()+score);
         userRepository.save(user);
         userRepository.flush();
     }
 
     public void submitWord(long id, String word) {
-        WordCheck wordChecker = new WordCheck();
-        Game game = gameRepository.findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException(String.format("A game with the id %id was not found", id))
-                );
-
+        Game game = getExistingGame(id);
         long elapsedSeconds = checkTimeForClue(game);
-
         List<String> clues = game.getClues();
+
         if (!wordChecker.checkEnglishWord(word)) {
             //Need to add REJECTED to the list in order to check if all the clues have been received or not.
             //So removing the exception statement.
@@ -401,5 +399,4 @@ public class GameService {
         gameRepository.save(game);
         gameRepository.flush();
     }
-
 }

@@ -75,6 +75,15 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void getAllLobbies() throws Exception {
+        MockHttpServletRequestBuilder getRequest = get("/lobby")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("X-Auth-Token","supersecrettokenvalue");
+
+        mockMvc.perform(getRequest).andExpect(status().isOk());
+    }
+
+    @Test
     public void getLobbyInfo() throws Exception {
         LobbyGetDTO lobbyGetDTO = new LobbyGetDTO();
 
