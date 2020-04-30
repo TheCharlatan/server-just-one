@@ -106,7 +106,7 @@ public class LobbyServiceTest {
     @Test
     public void addExistingUserToLobby(){
         List<Long> playerList  = new ArrayList<>();
-        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
+        Long[] longList = new Long[]{1L, 2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
@@ -165,6 +165,4 @@ public class LobbyServiceTest {
 
         assertThrows(LobbyException.class,()->lobbyService.removePlayerFromLobby(1L,8L));
     }
-
-
 }
