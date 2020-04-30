@@ -10,6 +10,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,8 @@ public class GameServiceTest {
     private UserRepository userRepository;
     @Mock
     private WordCheck wordChecker;
+    @Mock
+    private Stemmer stemmer;
 
     @InjectMocks
     private GameService gameService;
@@ -373,6 +376,9 @@ public class GameServiceTest {
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
+        testGame.setWordIndex(0);
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
         gameService.submitWord(1L,"word");
         assert(testGame.getClues().size() >= 1);
         for (String clue: testGame.getClues()) {
@@ -388,7 +394,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void allClueRejected(){
+    public void englishWordCheckInvalid(){
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         ArrayList<String> clues =  new ArrayList<>();
@@ -409,6 +415,29 @@ public class GameServiceTest {
     }
 
     @Test
+    public void stemCheckInvalid(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        testGame.setWordIndex(0);
+        ArrayList<String> clues =  new ArrayList<>();
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        testGame.setClues(clues);
+        ArrayList<Long> playerIdList = new ArrayList<>();
+        playerIdList.add(1L);
+        playerIdList.add(2L);
+        playerIdList.add(3L);
+        playerIdList.add(4L);
+        playerIdList.add(5L);
+        testGame.setPlayerIds(playerIdList);
+
+        gameService.submitWord(1L,"breaking");
+        assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
+    }
+
+    @Test
     public void getAllWordsFromList_Full() {
         ArrayList<String> words = gameService.getAllWordsFromWordList();
         for (String word: words) {
@@ -417,6 +446,7 @@ public class GameServiceTest {
         assert(words.get(0).equals("Alcatraz"));
         assert(words.get(274).equals("Book"));
     }
+
 
     @Test
     public void selectGameWords() {

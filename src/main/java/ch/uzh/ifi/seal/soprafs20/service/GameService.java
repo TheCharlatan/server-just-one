@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class GameService {
     private UserRepository userRepository;
     private Random rand = new Random();
     private WordCheck wordChecker = new WordCheck();
+    Stemmer stemCheck = new Stemmer();
 
 
     @Autowired
@@ -350,13 +352,17 @@ public class GameService {
     }
 
     public void submitWord(long id, String word) {
+
         Game game = getExistingGame(id);
         long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
         if (!wordChecker.checkEnglishWord(word)) {
-            //Need to add REJECTED to the list in order to check if all the clues have been received or not.
-            //So removing the exception statement.
+                //Need to add REJECTED to the list in order to check if all the clues have been received or not.
+                //So removing the exception statement.
+                clues.add("REJECTED");
+        }
+        else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex()))) {
             clues.add("REJECTED");
         }
         else {
