@@ -313,6 +313,30 @@ public class GameServiceTest {
         assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
     }
 
+    @Test
+    public void stemCheckInvalid(){
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        testGame.setWordIndex(0);
+        ArrayList<String> clues =  new ArrayList<>();
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        testGame.setClues(clues);
+        ArrayList<Long> playerIdList = new ArrayList<>();
+        playerIdList.add(1L);
+        playerIdList.add(2L);
+        playerIdList.add(3L);
+        playerIdList.add(4L);
+        playerIdList.add(5L);
+        testGame.setPlayerIds(playerIdList);
+
+        gameService.submitWord(1L,"breaking");
+        assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
+    }
+
+
 
     /* These are some tests for the private methods. They are commented sinc private methods cannot be
      * tested under normal circumstances and cannot be tested under normal circumstances. They are kept

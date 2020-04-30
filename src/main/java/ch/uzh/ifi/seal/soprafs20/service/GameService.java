@@ -9,6 +9,8 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.StemCheck;
+import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -346,6 +348,7 @@ public class GameService {
 
     public void submitWord(long id, String word) {
         WordCheck wordChecker = new WordCheck();
+        Stemmer stemCheck = new Stemmer();
         Game game = gameRepository.findById(id)
                 .orElseThrow(
                         () -> new NotFoundException(String.format("A game with the id %id was not found", id))
@@ -355,8 +358,11 @@ public class GameService {
 
         List<String> clues = game.getClues();
         if (!wordChecker.checkEnglishWord(word)) {
-            //Need to add REJECTED to the list in order to check if all the clues have been received or not.
-            //So removing the exception statement.
+                //Need to add REJECTED to the list in order to check if all the clues have been received or not.
+                //So removing the exception statement.
+                clues.add("REJECTED");
+        }
+        else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex()))) {
             clues.add("REJECTED");
         }
         else {
