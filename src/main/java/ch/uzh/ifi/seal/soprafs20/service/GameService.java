@@ -39,6 +39,8 @@ public class GameService {
     private GameRepository gameRepository;
     private UserRepository userRepository;
     private Random rand = new Random();
+    private WordCheck wordChecker = new WordCheck();
+
 
     @Autowired
     public GameService(@Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("userRepository") UserRepository userRepository) {
@@ -347,12 +349,10 @@ public class GameService {
     }
 
     public void submitWord(long id, String word) {
-        WordCheck wordChecker = new WordCheck();
         Game game = getExistingGame(id);
-
         long elapsedSeconds = checkTimeForClue(game);
-
         List<String> clues = game.getClues();
+
         if (!wordChecker.checkEnglishWord(word)) {
             //Need to add REJECTED to the list in order to check if all the clues have been received or not.
             //So removing the exception statement.
@@ -398,5 +398,4 @@ public class GameService {
         gameRepository.save(game);
         gameRepository.flush();
     }
-
 }
