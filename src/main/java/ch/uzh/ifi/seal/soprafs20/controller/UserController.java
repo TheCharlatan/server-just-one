@@ -110,4 +110,22 @@ public class UserController {
     public void invitation(@RequestHeader("X-Auth-Token") String token, @PathVariable Long userId, @RequestBody UserPutDTO userPutDTO){
         userService.invite(userId, userPutDTO.getInvitation());
     }
+
+    @GetMapping("/user/scoreboard")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<UserGetDTO> getOrderedListOfUser() {
+        List<User> users = userService.getUserScoreBoard();
+
+        List<UserGetDTO> userGetDTOs = new ArrayList<>();
+
+        // convert each user to the API representation
+        for (User user : users) {
+            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
+        }
+        return userGetDTOs;
+
+
+    }
+
 }

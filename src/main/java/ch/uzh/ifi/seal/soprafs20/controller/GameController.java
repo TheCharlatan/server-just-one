@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import org.springframework.http.HttpStatus;
@@ -92,5 +93,12 @@ public class GameController {
     @ResponseBody
     public void wrapup(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody long playerId) {
         gameService.wrapup(id, playerId);
+    }
+
+    @GetMapping("game/stat/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public GameStat getStat(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id){
+        return this.gameService.getFinalStats(id);
     }
 }

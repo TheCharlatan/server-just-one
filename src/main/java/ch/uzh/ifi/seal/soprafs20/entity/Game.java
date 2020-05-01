@@ -7,7 +7,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Internal Game Representation
@@ -59,7 +61,7 @@ public class Game implements Serializable {
 
     @Column
     @ElementCollection
-    private List<Integer> score = new ArrayList<>();
+    private Map<Long,Integer> score = new HashMap<>();
 
     @Column
     private LocalTime timestamp;
@@ -156,11 +158,11 @@ public class Game implements Serializable {
         return activePlayerId;
     }
 
-    public List<Integer> getScore() {
+    public Map<Long, Integer> getScore() {
         return score;
     }
 
-    public void setScore(List<Integer> score) {
+    public void setScore(Map<Long, Integer> score) {
         this.score = score;
     }
 
