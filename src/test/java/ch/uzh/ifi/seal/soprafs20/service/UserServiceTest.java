@@ -12,6 +12,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 import java.util.ArrayList;
@@ -118,6 +120,15 @@ public class UserServiceTest {
     public void login_invalid_password() {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         assertThrows(AuthenticationException.class, () -> userService.login("testUsername", "invalidPassword"));
+    }
+
+    @Test
+
+    public void logout_success() {
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        userService.logout(1L);
+
+        assertEquals(UserStatus.OFFLINE, testUser.getStatus());
     }
 
     @Test

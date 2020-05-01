@@ -114,10 +114,16 @@ public class UserService {
         }
     }
 
-    public List<User> getUserScoreBoard(){
+    public List<User> getUserScoreBoard() {
 
         List<User> userList = this.userRepository.findAll();
         userList.sort(Comparator.comparing(User::getScore).reversed());
         return userList;
+    }
+
+    public void logout(Long userId) {
+        User user = getExistingUser(userId);
+        user.setStatus(UserStatus.OFFLINE);
+
     }
 }

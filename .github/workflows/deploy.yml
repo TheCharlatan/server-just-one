@@ -47,7 +47,7 @@ jobs:
       run: heroku login
 
     - name: add heroku as git remote
-      run: heroku git:remote -a $HEROKU_APP_NAME
+      run: heroku git:remote -a sopra-fs20-group-06-server
 
     - name: deploy project to heroku
       run: git push -f heroku HEAD:refs/heads/master

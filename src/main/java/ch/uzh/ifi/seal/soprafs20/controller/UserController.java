@@ -96,6 +96,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void logout(@RequestHeader("X-Auth-Token") String token,@PathVariable Long userId){
+        userService.logout(userId);
     }
 
     @PutMapping("/user/{userId}/edit")
