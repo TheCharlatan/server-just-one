@@ -71,8 +71,8 @@ public class GameController {
     public void acceptWord(
             @RequestHeader("X-Auth-Token") String token,
             @PathVariable("id") long id,
-            @RequestBody GamePutDTO gamePutDTO) {
-        gameService.acceptWord(id, gamePutDTO);
+            @RequestBody long userId) {
+        gameService.acceptWord(id, userId);
     }
 
     @PutMapping("/game/{id}/clue")

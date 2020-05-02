@@ -58,6 +58,7 @@ public interface DTOMapper {
     @Mapping(source = "cardStatus", target ="cardStatus")
     @Mapping(source = "wordIndex", target = "wordIndex")
     @Mapping(source = "words", target = "words")
+    @Mapping(source = "countAccept", target = "countAccept")
     GameGetDTO convertEntityToGameGetDTO(Game game);
 
     @Mapping(source = "playerIds", target = "playerIds")

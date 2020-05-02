@@ -192,11 +192,13 @@ public class GameService {
     /*
     This Method should set the gameStatus and cardStatus according to an accepted word
      */
-    public void acceptWord(long gameId, GamePutDTO gamePutDTO) {
+    public void acceptWord(long gameId, long userId) {
         Game game = getExistingGame(gameId);
-        game.setCountAccept(game.getCountAccept() + 1);
+        List<Long> userAccepted = game.getCountAccept();
+        userAccepted.add(userId);
+        game.setCountAccept(userAccepted);
 
-        if(game.getCountAccept() == game.getPlayerIds().size() - 1) {
+        if(game.getCountAccept().size() == game.getPlayerIds().size() - 1) {
             game.setCardStatus(CardStatus.AWAITING_CLUES);
             game.setGameStatus(GameStatus.AWAITING_CLUES);
         }
