@@ -61,6 +61,7 @@ public class GameService {
         Game newGame = new Game();
         newGame.setPlayerIds(players);
         newGame.setGameStatus(GameStatus.AWAITING_INDEX);
+        newGame.setCardStatus(CardStatus.AWAITING_INDEX);
         newGame.setRound(1);
 
         newGame.setRoundScore(0);
@@ -153,8 +154,8 @@ public class GameService {
          */
         game.getClues().clear();
         game.getLastWordIndex().add(wordIndex);
-        game.setGameStatus(GameStatus.AWAITING_CLUES);
-        game.setCardStatus(CardStatus.AWAITING_CLUES);
+        game.setGameStatus(GameStatus.ACCEPT_REJECT);
+        //game.setCardStatus(CardStatus.AWAITING_CLUES); //Card status should stay on AWAITING_INDEX
         gameRepository.save(game);
         gameRepository.flush();
 
@@ -184,6 +185,22 @@ public class GameService {
         game.setWordIndex(-1);
         game.setCardStatus(CardStatus.USER_REJECTED_WORD);
         game.setGameStatus(GameStatus.AWAITING_INDEX);
+        gameRepository.save(game);
+        gameRepository.flush();
+    }
+
+    /*
+    This Method should set the gameStatus and cardStatus according to an accepted word
+     */
+    public void acceptWord(long gameId, GamePutDTO gamePutDTO) {
+        Game game = getExistingGame(gameId);
+        game.setCountAccept(game.getCountAccept() + 1);
+
+        if(game.getCountAccept() == game.getPlayerIds().size() - 1) {
+            game.setCardStatus(CardStatus.AWAITING_CLUES);
+            game.setGameStatus(GameStatus.AWAITING_CLUES);
+        }
+
         gameRepository.save(game);
         gameRepository.flush();
     }
@@ -354,7 +371,7 @@ public class GameService {
     public void submitWord(long id, String word) {
 
         Game game = getExistingGame(id);
-        long elapsedSeconds = checkTimeForClue(game);
+        //long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
         if (!wordChecker.checkEnglishWord(word)) {
@@ -374,7 +391,7 @@ public class GameService {
             throw new ServiceException("Too many clues submitted already");
         }
 
-        game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
+        //game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);

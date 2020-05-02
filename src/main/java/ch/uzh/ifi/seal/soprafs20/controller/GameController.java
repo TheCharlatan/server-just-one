@@ -65,6 +65,16 @@ public class GameController {
         gameService.rejectWord(id);
     }
 
+    @PutMapping("/game/{id}/accept")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseBody
+    public void acceptWord(
+            @RequestHeader("X-Auth-Token") String token,
+            @PathVariable("id") long id,
+            @RequestBody GamePutDTO gamePutDTO) {
+        gameService.acceptWord(id, gamePutDTO);
+    }
+
     @PutMapping("/game/{id}/clue")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
