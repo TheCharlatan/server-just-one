@@ -79,6 +79,14 @@ public class Game implements Serializable {
     @Column()
     private CardStatus cardStatus;
 
+    @Column
+    @ElementCollection
+    private List<Long> countAccept = new ArrayList<>();
+
+    public List<Long> getCountAccept() {return countAccept;}
+
+    public void setCountAccept(List<Long> accept) {this.countAccept = accept;}
+
     public Long getId() {
         return id;
     }
