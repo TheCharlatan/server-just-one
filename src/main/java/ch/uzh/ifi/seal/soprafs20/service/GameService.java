@@ -272,7 +272,14 @@ public class GameService {
             game.setCardGuessedCount(game.getCardGuessedCount() + 1);
             game.setWordsGuessedWrong(game.getWordsGuessedWrong() + 1);
         }
+        game.setGameStatus(GameStatus.TURN_ENDS);
+        gameRepository.save(game);
+        gameRepository.flush();
+        return returnedDTO;
+    }
 
+    public void turnEnd(long id) {
+        Game game = getExistingGame(id);
         // call the function "roundEnd" to set all the information needed for a new round
         //  or wrap up the game if no cards are left on the stack
         game.setRound(game.getRound() + 1);
@@ -280,7 +287,6 @@ public class GameService {
 
         gameRepository.save(game);
         gameRepository.flush();
-        return returnedDTO;
     }
 
     private void roundEnd (Game game) {

@@ -94,7 +94,16 @@ public class GameController {
             @RequestBody GamePutDTO gamePutDTO) {
 
         return this.gameService.checkGuess(gamePutDTO, id);
+    }
 
+    @PutMapping("/game/{id}/turn")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void turn(
+            @RequestHeader("X-Auth-Token") String token,
+            @PathVariable("id") long id,
+            @RequestBody GamePutDTO gamePutDTO) {
+        this.gameService.turnEnd(id);
     }
 
     @DeleteMapping("/game/{id}")
