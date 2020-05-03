@@ -204,6 +204,9 @@ public class GameService {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             List<Long> empty = new ArrayList<>();
             game.setCountAccept(empty);
+
+            //Time when user accept the word and from this time active player will have 30 seconds to guess the word
+            game.setTimestamp(java.time.LocalTime.now());
         }
 
         gameRepository.save(game);
@@ -357,14 +360,16 @@ public class GameService {
         LocalTime clueTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
-        if(elapsedSeconds>30){
+       /* if(elapsedSeconds>30){
+            log.info("before adding the clue"+game.getClues().size());
             List<String> clues = game.getClues();
             clues.add("REJECTED");
             game.setClues(clues);
+            log.info("after adding the clue"+game.getClues().size());
             gameRepository.save(game);
             gameRepository.flush();
             throw new ServiceException("You took more than 30 seconds to enter the valid clue");
-        }
+        }*/
         return elapsedSeconds;
     }
 
@@ -378,10 +383,13 @@ public class GameService {
     public void submitWord(long id, String word) {
 
         Game game = getExistingGame(id);
-        //long elapsedSeconds = checkTimeForClue(game);
+        long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
-        if (!wordChecker.checkEnglishWord(word)) {
+        if(elapsedSeconds>35){
+            clues.add("REJECTED");
+        }
+        else if (!wordChecker.checkEnglishWord(word)) {
                 //Need to add REJECTED to the list in order to check if all the clues have been received or not.
                 //So removing the exception statement.
                 clues.add("REJECTED");

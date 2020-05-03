@@ -365,13 +365,6 @@ public class GameServiceTest {
     }
 
     @Test
-    public void timeForSubmitClueException(){
-        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
-        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
-        assertThrows(ServiceException.class, ()->gameService.checkTimeForClue(testGame));
-    }
-
-    @Test
     public void clueAccepted() {
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
@@ -393,9 +386,35 @@ public class GameServiceTest {
         }
     }
 
+
+    @Test
+    public void timeForSubmitClueException(){
+        testGame.setTimestamp(java.time.LocalTime.now().minus(40, ChronoUnit.SECONDS));
+        ArrayList<String> clues =  new ArrayList<>();
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        clues.add("REJECTED");
+        testGame.setClues(clues);
+        testGame.setWords(Arrays.asList("GameWord","GameWord2","TestGame"));
+        testGame.setWordIndex(0);
+
+        ArrayList<Long> playerIdList = new ArrayList<>();
+        playerIdList.add(1L);
+        playerIdList.add(2L);
+        playerIdList.add(3L);
+        playerIdList.add(4L);
+        playerIdList.add(5L);
+        testGame.setPlayerIds(playerIdList);
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        gameService.submitWord(1L,"word");
+        assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
+
+    }
+
     @Test
     public void englishWordCheckInvalid(){
-        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         ArrayList<String> clues =  new ArrayList<>();
         clues.add("REJECTED");
@@ -409,6 +428,8 @@ public class GameServiceTest {
         playerIdList.add(4L);
         playerIdList.add(5L);
         testGame.setPlayerIds(playerIdList);
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
 
         gameService.submitWord(1L,"asfdj");
         assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
