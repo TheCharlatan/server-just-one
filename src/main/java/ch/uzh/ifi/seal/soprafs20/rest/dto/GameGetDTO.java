@@ -22,6 +22,10 @@ public class GameGetDTO {
     private int wordsGuessedWrong;
     private int cardStackCount;
     private int cardGuessedCount;
+    private List<Long> countAccept;
+
+    public List<Long> getCountAccept() {return countAccept;}
+    public void setCountAccept(List<Long> accept) {this.countAccept = accept;}
 
     private int wordIndex;
     private List<String> words;
