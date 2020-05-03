@@ -256,7 +256,7 @@ public class GameService {
             game.setCardStackCount(game.getCardStackCount() - 1);
         }
         //Successful Guess
-        else if (mysteryWord.equals(guess)) {
+        else if (mysteryWord.equalsIgnoreCase(guess)) {
             returnedDTO.setGuessCorrect("correct");
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
