@@ -375,8 +375,6 @@ public class Stemmer
         }
         stem();
         String stemmedWord = toString();
-        System.out.println(stemmedWord);
-
         if(stemmedWord.equalsIgnoreCase(checkWord)){
             return true;
         }

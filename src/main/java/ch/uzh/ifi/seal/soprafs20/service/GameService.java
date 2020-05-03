@@ -204,6 +204,9 @@ public class GameService {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             List<Long> empty = new ArrayList<>();
             game.setCountAccept(empty);
+
+            //Time when user accept the word and from this time active player will have 30 seconds to guess the word
+            game.setTimestamp(java.time.LocalTime.now());
         }
 
         gameRepository.save(game);
@@ -380,10 +383,10 @@ public class GameService {
     public void submitWord(long id, String word) {
 
         Game game = getExistingGame(id);
-        //long elapsedSeconds = checkTimeForClue(game);
+        long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
-        if(elapsedSeconds>30){
+        if(elapsedSeconds>35){
             clues.add("REJECTED");
         }
         else if (!wordChecker.checkEnglishWord(word)) {

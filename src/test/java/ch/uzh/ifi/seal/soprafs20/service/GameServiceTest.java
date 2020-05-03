@@ -389,12 +389,13 @@ public class GameServiceTest {
 
     @Test
     public void timeForSubmitClueException(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        testGame.setTimestamp(java.time.LocalTime.now().minus(40, ChronoUnit.SECONDS));
         ArrayList<String> clues =  new ArrayList<>();
         clues.add("REJECTED");
         clues.add("REJECTED");
         clues.add("REJECTED");
         testGame.setClues(clues);
+        testGame.setWords(Arrays.asList("GameWord","GameWord2","TestGame"));
         testGame.setWordIndex(0);
 
         ArrayList<Long> playerIdList = new ArrayList<>();
