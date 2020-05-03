@@ -336,14 +336,16 @@ public class GameService {
         LocalTime clueTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
-        if(elapsedSeconds>30){
+       /* if(elapsedSeconds>30){
+            log.info("before adding the clue"+game.getClues().size());
             List<String> clues = game.getClues();
             clues.add("REJECTED");
             game.setClues(clues);
+            log.info("after adding the clue"+game.getClues().size());
             gameRepository.save(game);
             gameRepository.flush();
             throw new ServiceException("You took more than 30 seconds to enter the valid clue");
-        }
+        }*/
         return elapsedSeconds;
     }
 
@@ -360,7 +362,10 @@ public class GameService {
         long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
-        if (!wordChecker.checkEnglishWord(word)) {
+        if(elapsedSeconds>30){
+            clues.add("REJECTED");
+        }
+        else if (!wordChecker.checkEnglishWord(word)) {
                 //Need to add REJECTED to the list in order to check if all the clues have been received or not.
                 //So removing the exception statement.
                 clues.add("REJECTED");
