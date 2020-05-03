@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.slf4j.Logger;
@@ -307,15 +308,17 @@ public class GameService {
         //reset lastWordList
         game.getLastWordIndex().clear();
 
-        //reset roundend score
-        game.setRoundScore(0);
-
         //Updating score of the player and also storing the score of previous rounds
         int scoreForRound = game.getRoundScore()/10;
+
         updateUserScore(game.getActivePlayerId(), scoreForRound);
 
         //Adding the score of this round to scoreboard
-        game.getScore().add(scoreForRound);
+        game.getScore().put(game.getActivePlayerId(),scoreForRound);
+
+
+        //reset roundend score
+        game.setRoundScore(0);
     }
 
     public void wrapup(long id, long playerId) {
@@ -425,5 +428,24 @@ public class GameService {
 
         gameRepository.save(game);
         gameRepository.flush();
+    }
+
+    public GameStat getFinalStats(long id){
+
+        Game game = getExistingGame(id);
+        int cumulativeScore = new ArrayList<>(game.getScore().values()).stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        cumulativeScore += game.getWordsGuessedCorrect()*10;
+        GameStat gameStat = new GameStat();
+
+        gameStat.setId(game.getId());
+        gameStat.setScore(cumulativeScore);
+        gameStat.setWordsGuessedCorrect(game.getWordsGuessedCorrect());
+        gameStat.setWordsGuessedWrong(game.getWordsGuessedWrong());
+        gameStat.setScorePlayerWise(game.getScore());
+
+        return gameStat;
     }
 }
