@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
@@ -15,9 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.awt.image.AreaAveragingScaleFilter;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class LobbyServiceTest {
@@ -48,6 +47,7 @@ public class LobbyServiceTest {
         testUser.setId(1L);
         testUser.setName("testName");
         testUser.setUsername("testUsername");
+        testUser.setStatus(UserStatus.ONLINE);
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
@@ -165,4 +165,24 @@ public class LobbyServiceTest {
 
         assertThrows(LobbyException.class,()->lobbyService.removePlayerFromLobby(1L,8L,false));
     }
+
+    @Test
+    public void removePlayerFromLobbyBrowserCloses(){
+        List<Long> playerList  = new ArrayList<>();
+        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
+        Collections.addAll(playerList,longList);
+        lobbyTest.setPlayerIds(playerList);
+        Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
+        lobbyService.createLobby(lobbyTest);
+
+        Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
+        Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
+        Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
+        lobbyService.removePlayerFromLobby(1l,1l,true);
+        assertEquals(false, lobbyTest.getPlayerIds().contains(1));
+        assertEquals(UserStatus.OFFLINE, testUser.getStatus());
+        assertNotEquals(1l,lobbyTest.getHostPlayerId());
+    }
+
 }

@@ -3,12 +3,15 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameDeleteDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
@@ -21,10 +24,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,6 +37,10 @@ public class GameServiceTest {
     private GameRepository gameRepository;
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private LobbyRepository lobbyRepository;
+
     @Mock
     private WordCheck wordChecker;
     @Mock
@@ -44,6 +48,9 @@ public class GameServiceTest {
 
     @InjectMocks
     private GameService gameService;
+
+    @InjectMocks
+    private LobbyService lobbyService;
 
     private User testUser;
     private Game testGame;
@@ -54,6 +61,7 @@ public class GameServiceTest {
 
         testUser = new User();
         testUser.setId(1L);
+        testUser.setStatus(UserStatus.ONLINE);
 
         testGame = new Game();
         testGame.setId(1L);
@@ -477,4 +485,46 @@ public class GameServiceTest {
             assert (!word.equals(""));
         }
     }
+/*
+    @Test
+    public void removePlayerFromGame(){
+        ArrayList<Long> playerIdList = new ArrayList<>();
+        playerIdList.add(1L);
+        playerIdList.add(2L);
+        playerIdList.add(3L);
+        playerIdList.add(4L);
+        playerIdList.add(5L);
+        testGame.setPlayerIds(playerIdList);
+        testGame.setRound(1);
+        testGame.setActivePlayerId(3L);
+
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setStatus(UserStatus.ONLINE);
+
+        Lobby lobbyTest = new Lobby();
+        lobbyTest.setId(1l);
+        lobbyTest.setName("testLobby");
+        lobbyTest.setHostPlayerId(1L);
+        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(lobbyTest);
+
+        List<Long> playerList  = new ArrayList<>();
+        Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
+        Collections.addAll(playerList,longList);
+        lobbyTest.setPlayerIds(playerList);
+
+        GameDeleteDTO gameDeleteDTO = new GameDeleteDTO();
+        gameDeleteDTO.setUserId(2L);
+        gameDeleteDTO.setLobbyId(1L);
+        gameDeleteDTO.setBrowserClose(true);
+
+        Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
+        Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(Optional.of(lobbyTest));
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser2));
+        gameService.removePlayerFromGame(testGame.getId(),gameDeleteDTO);
+        assertEquals(false,testGame.getPlayerIds().contains(2L));
+        assertEquals(UserStatus.OFFLINE,testUser2.getStatus());
+
+    }*/
 }

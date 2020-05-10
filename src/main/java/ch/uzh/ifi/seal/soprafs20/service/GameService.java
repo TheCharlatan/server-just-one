@@ -4,7 +4,9 @@ import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
@@ -489,6 +491,7 @@ public class GameService {
         return game;
 
     }
+
 
     private void roundEndGameCancelled(Game game, long userId) {
         // check how many cards are left on the stack

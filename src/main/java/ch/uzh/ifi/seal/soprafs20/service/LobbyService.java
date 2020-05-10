@@ -92,6 +92,10 @@ public class LobbyService {
             throw new LobbyException(baseErrorMessage);
         }
 
+        //Changing host when host player leaves the lobby
+        if(lobby.getHostPlayerId() == userId){
+            lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+        }
         saveOrUpdate(lobby);
 
         if(browserClose) {
