@@ -112,6 +112,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobby/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userId))
+                .param("browserClose","false")
                 .header("X-Auth-Token","supersecrettokenvalue");
 
         mockMvc.perform(deleteRequest)

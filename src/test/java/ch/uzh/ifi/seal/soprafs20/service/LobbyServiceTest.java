@@ -146,7 +146,7 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
-        lobbyService.removePlayerFromLobby(1l,1l);
+        lobbyService.removePlayerFromLobby(1l,1l,false);
         assertEquals(false, lobbyTest.getPlayerIds().contains(1));
     }
 
@@ -163,6 +163,6 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
 
-        assertThrows(LobbyException.class,()->lobbyService.removePlayerFromLobby(1L,8L));
+        assertThrows(LobbyException.class,()->lobbyService.removePlayerFromLobby(1L,8L,false));
     }
 }

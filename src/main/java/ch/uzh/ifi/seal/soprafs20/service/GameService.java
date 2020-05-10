@@ -2,12 +2,14 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameDeleteDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
@@ -40,15 +42,17 @@ public class GameService {
 
     private GameRepository gameRepository;
     private UserRepository userRepository;
+    private LobbyService lobbyService;
     private Random rand = new Random();
     private WordCheck wordChecker = new WordCheck();
     Stemmer stemCheck = new Stemmer();
 
 
     @Autowired
-    public GameService(@Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("userRepository") UserRepository userRepository) {
+    public GameService(@Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("userRepository") UserRepository userRepository, LobbyService lobbyService) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.lobbyService = lobbyService;
     }
 
     public Long createGame(List<Long> players) {
@@ -455,5 +459,69 @@ public class GameService {
         gameStat.setScorePlayerWise(game.getScore());
 
         return gameStat;
+    }
+
+    public Game removePlayerFromGame(long gameId, GameDeleteDTO gameDeleteDTO){
+
+        Game game = getExistingGame(gameId);
+
+        game.getPlayerIds().remove(gameDeleteDTO.getUserId());
+
+        if (game.getPlayerIds().size()<3){
+            game.setGameStatus(GameStatus.GAME_OVER);
+        }
+        else{
+            roundEndGameCancelled(game,gameDeleteDTO.getUserId());
+        }
+        gameRepository.save(game);
+        gameRepository.flush();
+
+        if(gameDeleteDTO.isBrowserClose()) {
+            //logging off user
+            User user = getExistingUser(gameDeleteDTO.getUserId());
+            user.setStatus(UserStatus.OFFLINE);
+            userRepository.save(user);
+            userRepository.flush();
+            //removing user from lobby
+            lobbyService.removePlayerFromLobby(gameDeleteDTO.getLobbyId(),gameDeleteDTO.getUserId(),gameDeleteDTO.isBrowserClose());
+        }
+
+        return game;
+
+    }
+
+    private void roundEndGameCancelled(Game game, long userId) {
+        // check how many cards are left on the stack
+        if (game.getCardStackCount() <= 0) {
+            game.setGameStatus(GameStatus.GAME_OVER);
+            return;
+        }
+        game.setGameStatus(GameStatus.AWAITING_INDEX);
+        game.setCardStatus(CardStatus.AWAITING_INDEX);
+
+        //Changing the active player id only when active player leaves the game.
+        if(userId == game.getActivePlayerId()) {
+            // select the next player
+            List<Long> activePlayerId = game.getPlayerIds();
+            int activePlayerIndex = (activePlayerId.indexOf(game.getActivePlayerId()) + 1) % activePlayerId.size();
+            game.setActivePlayerId(game.getPlayerIds().get(activePlayerIndex));
+        }
+
+        // reset the clues
+        List<String> clues = new ArrayList<>();
+        game.setClues(clues);
+
+        game.setCardStackCount(game.getCardStackCount() - 1);
+
+        game.setRound(game.getRound() + 1);
+
+        //reset the card Index
+        game.setWordIndex(-1);
+
+        //reset lastWordList
+        game.getLastWordIndex().clear();
+
+        //reset roundend score
+        game.setRoundScore(0);
     }
 }

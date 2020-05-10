@@ -1,9 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 
+import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
@@ -72,7 +74,15 @@ public class LobbyService {
         return lobbyGetDTOList;
     }
 
-    public void removePlayerFromLobby(long id, long userId){
+    public User getExistingUser(long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+        }
+        return optionalUser.get();
+    }
+
+    public void removePlayerFromLobby(long id, long userId, boolean browserClose){
         Lobby lobby = getLobby(id);
         String baseErrorMessage = "This player id is invalid. Please provide proper id";
         if(lobby.getPlayerIds().contains(userId)){
@@ -83,6 +93,14 @@ public class LobbyService {
         }
 
         saveOrUpdate(lobby);
+
+        if(browserClose) {
+            //log off the user
+            User user = getExistingUser(userId);
+            user.setStatus(UserStatus.OFFLINE);
+            userRepository.save(user);
+            userRepository.flush();
+        }
     }
 
     public void addPlayerToLobby(long id, long userId){

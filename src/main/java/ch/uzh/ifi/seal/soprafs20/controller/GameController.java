@@ -1,10 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import org.springframework.http.HttpStatus;
@@ -110,5 +107,14 @@ public class GameController {
     @ResponseBody
     public GameStat getStat(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id){
         return this.gameService.getFinalStats(id);
+    }
+
+    @DeleteMapping("game/user/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public GameGetDTO removePlayerFromGame(@RequestHeader("X-Auth-Token") String token,
+                                           @PathVariable("id") long gameId, @RequestBody GameDeleteDTO gameDeleteDTO){
+        Game game = gameService.removePlayerFromGame(gameId,gameDeleteDTO);
+        return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
     }
 }
