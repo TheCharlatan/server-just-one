@@ -94,7 +94,9 @@ public class LobbyService {
 
         //Changing host when host player leaves the lobby
         if(lobby.getHostPlayerId() == userId){
-            lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+            if(lobby.getPlayerIds().size()>0) {
+                lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+            }
         }
         saveOrUpdate(lobby);
 
