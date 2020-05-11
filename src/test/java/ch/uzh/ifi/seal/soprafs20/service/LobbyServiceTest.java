@@ -15,9 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.awt.image.AreaAveragingScaleFilter;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class LobbyServiceTest {
@@ -147,7 +145,8 @@ public class LobbyServiceTest {
         Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
         lobbyService.removePlayerFromLobby(1l,1l);
-        assertEquals(false, lobbyTest.getPlayerIds().contains(1));
+        assertFalse(lobbyTest.getPlayerIds().contains(1));
+        assertEquals(-1, testUser.getLobbyId());
     }
 
     @Test

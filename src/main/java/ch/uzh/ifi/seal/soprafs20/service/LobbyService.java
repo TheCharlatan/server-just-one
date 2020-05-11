@@ -4,6 +4,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
@@ -74,6 +75,11 @@ public class LobbyService {
 
     public void removePlayerFromLobby(long id, long userId){
         Lobby lobby = getLobby(id);
+        Optional<User> optUser = userRepository.findById(userId);
+        if (!optUser.isPresent()) {
+            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+        }
+        User user = optUser.get();
         String baseErrorMessage = "This player id is invalid. Please provide proper id";
         if(lobby.getPlayerIds().contains(userId)){
             lobby.getPlayerIds().remove(userId);
@@ -81,7 +87,15 @@ public class LobbyService {
         else{
             throw new LobbyException(baseErrorMessage);
         }
+        if(user.getLobbyId() == id) {
+            user.setLobbyId(-1);
+        }
+        else{
+            throw new NotFoundException("Something went wrong while removing the player from the lobby");
+        }
 
+        userRepository.save(user);
+        userRepository.flush();
         saveOrUpdate(lobby);
     }
 

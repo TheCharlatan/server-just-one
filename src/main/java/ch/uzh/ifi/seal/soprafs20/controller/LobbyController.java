@@ -70,7 +70,7 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void removePlayer(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody long userId) {
-        lobbyService.removePlayerFromLobby(id,userId);
+        lobbyService.removePlayerFromLobby(id, userId);
     }
 
     @GetMapping("/lobby/{id}/chat")
