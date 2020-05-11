@@ -412,7 +412,13 @@ public class GameService {
             game.setCardStatus(CardStatus.AWAITING_CLUES);
         }
 
-        if (game.getClues().size() >= game.getPlayerIds().size() - 1) {
+        // create a special case rules for 3 players
+        int maxNumClues = game.getPlayerIds().size() - 1;
+        if (game.getPlayerIds().size() == 3) {
+            maxNumClues = 2 * game.getPlayerIds().size() - 1;
+        }
+
+        if (game.getClues().size() >= maxNumClues) {
             game.setGameStatus(GameStatus.AWAITING_GUESS);
             //Setting the score as per user story
             game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,"REJECTED"));
@@ -427,7 +433,7 @@ public class GameService {
         If found true, the card will be removed and the game status will
         change to Awaiting Index in order to get new word.
          */
-        if(allCluesRejected(clues,game.getPlayerIds().size()-1)){
+        if(allCluesRejected(clues, maxNumClues)) {
             game.setCardStatus(CardStatus.NO_VALID_CLUE_ENTERED);
             game.setWordIndex(-1);
             game.setGameStatus(GameStatus.AWAITING_INDEX);
