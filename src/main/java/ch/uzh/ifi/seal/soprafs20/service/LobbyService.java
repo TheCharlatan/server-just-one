@@ -96,16 +96,24 @@ public class LobbyService {
         if(lobby.getHostPlayerId() == userId){
             if(lobby.getPlayerIds().size()>0) {
                 lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+                User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
+                newLobbyHost.setLobbyId(id);
+                userRepository.save(newLobbyHost);
+                userRepository.flush();
             }
+        }
+        User user = getExistingUser(userId);
+        if(user.getLobbyId()==id){
+            user.setLobbyId(-1);
         }
 
         if(browserClose) {
             //log off the user
-            User user = getExistingUser(userId);
             user.setStatus(UserStatus.OFFLINE);
-            userRepository.save(user);
-            userRepository.flush();
         }
+
+        userRepository.save(user);
+        userRepository.flush();
 
         //Deleting the lobby if all player have left the lobby
         if(lobby.getPlayerIds().size()==0){
