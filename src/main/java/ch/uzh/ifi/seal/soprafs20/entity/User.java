@@ -41,8 +41,7 @@ public class User implements Serializable {
     private UserStatus status;
 
     @Column()
-    @ElementCollection
-
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Long> invitations = new ArrayList<>();
 
     @Column
@@ -66,6 +65,12 @@ public class User implements Serializable {
     @Column
     private long gameId;
 
+    @Column
+    private long lobbyId;
+
+    @Column
+    private String image;
+
     @Override
     public String toString() {
         return "User{" +
@@ -86,13 +91,6 @@ public class User implements Serializable {
                 ", lobbyId=" + lobbyId +
                 '}';
     }
-
-    @Column
-    private long lobbyId;
-
-    @Column
-    private String image;
-
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
