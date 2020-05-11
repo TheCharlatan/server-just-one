@@ -98,7 +98,6 @@ public class LobbyService {
                 lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
             }
         }
-        saveOrUpdate(lobby);
 
         if(browserClose) {
             //log off the user
@@ -107,6 +106,13 @@ public class LobbyService {
             userRepository.save(user);
             userRepository.flush();
         }
+
+        //Deleting the lobby if all player have left the lobby
+        if(lobby.getPlayerIds().size()==0){
+            lobbyRepository.delete(lobby);
+            return;
+        }
+        saveOrUpdate(lobby);
     }
 
     public void addPlayerToLobby(long id, long userId){
