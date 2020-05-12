@@ -130,4 +130,13 @@ public class GameController {
     public GameStat getStat(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id){
         return this.gameService.getFinalStats(id);
     }
+
+    @DeleteMapping("game/user/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public GameGetDTO removePlayerFromGame(@RequestHeader("X-Auth-Token") String token,
+                                           @PathVariable("id") long gameId, @RequestBody GameDeleteDTO gameDeleteDTO){
+        Game game = gameService.removePlayerFromGame(gameId,gameDeleteDTO);
+        return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+    }
 }

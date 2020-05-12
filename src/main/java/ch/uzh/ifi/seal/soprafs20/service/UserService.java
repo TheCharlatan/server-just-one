@@ -156,6 +156,7 @@ public class UserService {
     public void logout(Long userId) {
         User user = getExistingUser(userId);
         user.setStatus(UserStatus.OFFLINE);
-
+        userRepository.save(user);
+        userRepository.flush();
     }
 }

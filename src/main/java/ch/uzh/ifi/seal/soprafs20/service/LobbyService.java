@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 
+import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
@@ -101,29 +102,52 @@ public class LobbyService {
         lobbyPollService.pollGetUpdate(result, id);
     }
 
-    public void removePlayerFromLobby(long id, long lobbyId){
-        Lobby lobby = getLobby(id);
-        Optional<User> optUser = userRepository.findById(userId);
-        if (!optUser.isPresent()) {
+    public User getExistingUser(long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
             throw new NotFoundException(String.format("Could not find user with id %d.", id));
         }
-        User user = optUser.get();
+        return optionalUser.get();
+    }
+
+    public void removePlayerFromLobby(long id, long userId, boolean browserClose){
+        Lobby lobby = getLobby(id);
         String baseErrorMessage = "This player id is invalid. Please provide proper id";
-        if(lobby.getPlayerIds().contains(lobbyId)){
-            lobby.getPlayerIds().remove(lobbyId);
+        if(lobby.getPlayerIds().contains(userId)){
+            lobby.getPlayerIds().remove(userId);
         }
         else{
             throw new LobbyException(baseErrorMessage);
         }
-        if(user.getLobbyId() == id) {
+
+        //Changing host when host player leaves the lobby
+        if(lobby.getHostPlayerId() == userId){
+            if(lobby.getPlayerIds().size()>0) {
+                lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+                User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
+                newLobbyHost.setLobbyId(id);
+                userRepository.save(newLobbyHost);
+                userRepository.flush();
+            }
+        }
+        User user = getExistingUser(userId);
+        if(user.getLobbyId()==id){
             user.setLobbyId(-1);
         }
-        else{
-            throw new NotFoundException("Something went wrong while removing the player from the lobby");
+
+        if(browserClose) {
+            //log off the user
+            user.setStatus(UserStatus.OFFLINE);
         }
 
         userRepository.save(user);
         userRepository.flush();
+
+        //Deleting the lobby if all player have left the lobby
+        if(lobby.getPlayerIds().size()==0){
+            lobbyRepository.delete(lobby);
+            return;
+        }
         saveOrUpdate(lobby);
     }
 

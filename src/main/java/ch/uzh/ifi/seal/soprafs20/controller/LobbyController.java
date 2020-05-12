@@ -12,9 +12,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import javax.persistence.Basic;
 import java.util.ArrayList;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -91,8 +93,9 @@ public class LobbyController {
     @DeleteMapping("/lobby/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void removePlayer(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody long userId) {
-        lobbyService.removePlayerFromLobby(id, userId);
+    public void removePlayer(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id,
+                             @RequestBody long userId, @RequestParam Boolean browserClose) {
+        lobbyService.removePlayerFromLobby(id,userId, browserClose);
     }
 
     @GetMapping("/lobby/{id}/chat")
