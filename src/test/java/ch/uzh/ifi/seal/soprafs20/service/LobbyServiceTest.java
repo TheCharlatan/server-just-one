@@ -155,8 +155,11 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(testUser2));
         Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
         Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
+
         lobbyService.removePlayerFromLobby(1l,1l,false);
-        assertEquals(false, lobbyTest.getPlayerIds().contains(1));
+        assertFalse(lobbyTest.getPlayerIds().contains(1));
+        assertEquals(-1, testUser.getLobbyId());
+
     }
 
     @Test

@@ -4,16 +4,12 @@ import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GameDeleteDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.slf4j.Logger;
@@ -22,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -45,6 +42,8 @@ public class GameService {
     private GameRepository gameRepository;
     private UserRepository userRepository;
     private LobbyService lobbyService;
+    private GamePollService gamePollService;
+
     private Random rand = new Random();
     private WordCheck wordChecker = new WordCheck();
     Stemmer stemCheck = new Stemmer();
@@ -55,6 +54,32 @@ public class GameService {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.lobbyService = lobbyService;
+        this.gamePollService = new GamePollService(gameRepository);
+    }
+
+    // subscription method for a certain game id
+    public void subscribe(Long id) {
+        try {
+            gameRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot subscribe to a non-existing game");
+        }
+        gamePollService.subscribe(id);
+    }
+
+    // unsubscription method for a certain game id
+    public void unsubscribe(Long id) {
+        gamePollService.unsubscribe(id);
+    }
+
+    // async, returns once there is a change for the game id
+    public void pollGetUpdate(DeferredResult<GameGetDTO> result, Long id) {
+        try {
+            gameRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot poll for a non-existing game");
+        }
+        gamePollService.pollGetUpdate(result, id);
     }
 
     public Long createGame(List<Long> players) {
@@ -262,7 +287,7 @@ public class GameService {
             game.setCardStackCount(game.getCardStackCount() - 1);
         }
         //Successful Guess
-        else if (mysteryWord.equals(guess)) {
+        else if (mysteryWord.equalsIgnoreCase(guess)) {
             returnedDTO.setGuessCorrect("correct");
             //set the guesses and card numbers according to a correct guess
             game.setWordsGuessedCorrect(game.getWordsGuessedCorrect() + 1);
@@ -418,7 +443,13 @@ public class GameService {
             game.setCardStatus(CardStatus.AWAITING_CLUES);
         }
 
-        if (game.getClues().size() >= game.getPlayerIds().size() - 1) {
+        // create a special case rules for 3 players
+        int maxNumClues = game.getPlayerIds().size() - 1;
+        if (game.getPlayerIds().size() == 3) {
+            maxNumClues = 2 * game.getPlayerIds().size() - 1;
+        }
+
+        if (game.getClues().size() >= maxNumClues) {
             game.setGameStatus(GameStatus.AWAITING_GUESS);
             //Setting the score as per user story
             game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,"REJECTED"));
@@ -433,7 +464,7 @@ public class GameService {
         If found true, the card will be removed and the game status will
         change to Awaiting Index in order to get new word.
          */
-        if(allCluesRejected(clues,game.getPlayerIds().size()-1)){
+        if(allCluesRejected(clues, maxNumClues)) {
             game.setCardStatus(CardStatus.NO_VALID_CLUE_ENTERED);
             game.setWordIndex(-1);
             game.setGameStatus(GameStatus.AWAITING_INDEX);
@@ -473,7 +504,7 @@ public class GameService {
             game.setGameStatus(GameStatus.GAME_OVER);
         }
         else{
-            roundEndGameCancelled(game,gameDeleteDTO.getUserId());
+            roundEndPlayerLeaves(game,gameDeleteDTO.getUserId());
         }
         gameRepository.save(game);
         gameRepository.flush();
@@ -493,7 +524,7 @@ public class GameService {
     }
 
 
-    private void roundEndGameCancelled(Game game, long userId) {
+    private void roundEndPlayerLeaves(Game game, long userId) {
         // check how many cards are left on the stack
         if (game.getCardStackCount() <= 0) {
             game.setGameStatus(GameStatus.GAME_OVER);

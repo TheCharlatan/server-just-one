@@ -85,6 +85,29 @@ public class Game implements Serializable {
     @ElementCollection
     private List<Long> countAccept = new ArrayList<>();
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + this.getId() +
+                ", playerIds='" + this.getPlayerIds() +
+                ", round='" + this.getRound() +
+                ", gameStatus='" + this.getGameStatus() +
+                ", words=" + this.getWords() +
+                ", wordIndex='" + this.getWordIndex() +
+                ", lastWordIndex=" + this.getLastWordIndex() +
+                ", roundScore=" + this.getRoundScore() +
+                ", activePlayerId=" + this.getActivePlayerId()+
+                ", clues=" + this.getClues() +
+                ", score=" + this.getScore() +
+                ", timestamp='" + this.getTimestamp() +
+                ", wordsGuessedWrong=" + this.getWordsGuessedWrong() +
+                ", cardStackCount=" + this.getCardStackCount() +
+                ", cardGuessedCount=" + this.getCardGuessedCount() +
+                ", cardStatus=" + this.getCardStatus() +
+                ", countAccept=" + this.getCountAccept() +
+                '}';
+    }
+
     public List<Long> getCountAccept() {return countAccept;}
 
     public void setCountAccept(List<Long> accept) {this.countAccept = accept;}

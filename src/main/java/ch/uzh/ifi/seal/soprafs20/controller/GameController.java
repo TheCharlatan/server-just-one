@@ -5,9 +5,10 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.net.URI;
 
@@ -44,6 +45,27 @@ public class GameController {
     public GameGetDTO getGameInfo(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
         Game game = gameService.getExistingGame(id);
         return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+    }
+
+    @GetMapping("/gamepoll/{gameId}/subscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void subscribe(@PathVariable Long gameId){
+        gameService.subscribe(gameId);
+    }
+
+    @GetMapping("/gamepoll/{gameId}/unsubscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void unsubscribe(@PathVariable Long gameId){
+        gameService.unsubscribe(gameId);
+    }
+
+    @GetMapping("/gamepoll/{gameId}")
+    @ResponseStatus(HttpStatus.OK)
+    DeferredResult<GameGetDTO> poll(@PathVariable Long gameId){
+        // create deferred result that times out after 60 seconds
+        final DeferredResult<GameGetDTO> finalResult  = new DeferredResult<GameGetDTO>(60000l);
+        gameService.pollGetUpdate(finalResult, gameId);
+        return finalResult;
     }
 
     @PutMapping("/game/{id}/number")

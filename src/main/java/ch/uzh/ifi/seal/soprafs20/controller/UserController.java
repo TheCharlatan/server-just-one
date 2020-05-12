@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -9,12 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User Controller
@@ -28,6 +32,27 @@ public class UserController {
 
     UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping("/userpoll/{userId}/subscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void subscribe(@PathVariable Long userId){
+        userService.subscribe(userId);
+    }
+
+    @GetMapping("/userpoll/{userId}/unsubscribe")
+    @ResponseStatus(HttpStatus.OK)
+    public void unsubscribe(@PathVariable Long userId){
+        userService.unsubscribe(userId);
+    }
+
+    @GetMapping("/userpoll/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    DeferredResult<UserGetDTO> poll(@PathVariable Long userId){
+        // create deferred result that times out after 60 seconds
+        final DeferredResult<UserGetDTO> finalResult  = new DeferredResult<UserGetDTO>(60000l);
+        userService.pollGetUpdate(finalResult, userId);
+        return finalResult;
     }
 
     @GetMapping("/user")
@@ -58,7 +83,6 @@ public class UserController {
                 .buildAndExpand(String.format("%d", createdUser.getId()))
                 .toUri();
         return ResponseEntity.created(location).build();
-
     }
 
     @GetMapping("/user/{userId}")
@@ -125,8 +149,6 @@ public class UserController {
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
         }
         return userGetDTOs;
-
-
     }
-
 }
+

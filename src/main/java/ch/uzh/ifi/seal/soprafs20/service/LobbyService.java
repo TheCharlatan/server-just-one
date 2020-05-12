@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +33,13 @@ public class LobbyService {
 
     private final LobbyRepository lobbyRepository;
     private final UserRepository userRepository;
+    private final LobbyPollService lobbyPollService;
 
     @Autowired
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, @Qualifier("userRepository") UserRepository userRepository) {
         this.lobbyRepository = lobbyRepository;
         this.userRepository = userRepository;
+        this.lobbyPollService = new LobbyPollService(lobbyRepository);
     }
 
     public Long createLobby(Lobby newLobby){
@@ -72,6 +75,31 @@ public class LobbyService {
             lobbyGetDTOList.add(lobbyGetDTO);
         }
         return lobbyGetDTOList;
+    }
+
+    // subscription method for a certain lobby id
+    public void subscribe(Long id) {
+        try {
+            lobbyRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot subscribe to a non-existing lobby");
+        }
+        lobbyPollService.subscribe(id);
+    }
+
+    // unsubscription method for a certain lobby id
+    public void unsubscribe(Long id) {
+        lobbyPollService.unsubscribe(id);
+    }
+
+    // async, returns once there is a change for the lobby id
+    public void pollGetUpdate(DeferredResult<LobbyGetDTO> result, Long id) {
+        try {
+            lobbyRepository.findById(id).get();
+        } catch (Exception e) {
+            throw new NotFoundException("Cannot poll for a non-existing lobby");
+        }
+        lobbyPollService.pollGetUpdate(result, id);
     }
 
     public User getExistingUser(long id) {
