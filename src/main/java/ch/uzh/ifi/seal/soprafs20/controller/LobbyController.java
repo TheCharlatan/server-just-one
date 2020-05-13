@@ -62,15 +62,16 @@ public class LobbyController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
-    @GetMapping("/lobbypoll/{lobbyId}/subscribe")
+    @PostMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     public void subscribe(@PathVariable Long lobbyId){
         lobbyService.subscribe(lobbyId);
     }
 
-    @GetMapping("/lobbypoll/{lobbyId}/unsubscribe")
+    @DeleteMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long lobbyId){
+        System.out.println(lobbyId);
         lobbyService.unsubscribe(lobbyId);
     }
 

@@ -1,11 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
+import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
-import ch.uzh.ifi.seal.soprafs20.worker.LobbyPollWorker;
+import ch.uzh.ifi.seal.soprafs20.worker.ChatPollWorker;
 import ch.uzh.ifi.seal.soprafs20.utils.Pair;
 
 import org.slf4j.Logger;
@@ -27,26 +27,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-//@Service("LobbyPollService")
+//@Service("ChatPollService")
 @Service
 @Transactional
-public class LobbyPollService implements Runnable {
+public class ChatPollService implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(LobbyPollService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChatPollService.class);
 
-    private ArrayList<Pair<Long, DeferredResult<LobbyGetDTO>>> resultList = new ArrayList<Pair<Long, DeferredResult<LobbyGetDTO>>>();
-    private LobbyPollWorker worker;
+    private ArrayList<Pair<Long, DeferredResult<List<ChatMessageDTO>>>> resultList = new ArrayList<>();
+    private ChatPollWorker worker;
 
     private Thread thread;
 
     private volatile boolean start = true;
 
     @Autowired
-    public LobbyPollService(LobbyRepository lobbyRepository) {
-        worker = new LobbyPollWorker(lobbyRepository);
+    public ChatPollService(ChatRepository chatRepository) {
+        worker = new ChatPollWorker(chatRepository);
     }
 
     public void subscribe(Long id) {
+        logger.info("Starting server");
         worker.subscribe(id);
         startThread();
     }
@@ -57,7 +58,6 @@ public class LobbyPollService implements Runnable {
 
     private void startThread() {
         if (start) {
-            logger.info("Starting server");
             synchronized (this) {
                 if (start) {
                     start = false;
@@ -73,17 +73,30 @@ public class LobbyPollService implements Runnable {
 
       while (true) {
         try {
-            Pair<Long, Lobby> message = worker.queue.take();
-            ArrayList<Pair<Long, DeferredResult<LobbyGetDTO>>> resolvedRequests = new ArrayList<>();
-            for (Pair<Long, DeferredResult<LobbyGetDTO>> request: resultList) {
+            Pair<Long, Chat> message = worker.queue.take();
+            ArrayList<Pair<Long, DeferredResult<List<ChatMessageDTO>>>> resolvedRequests = new ArrayList<>();
+            for (Pair<Long, DeferredResult<List<ChatMessageDTO>>> request: resultList) {
                 //compare ids
                 resolvedRequests.add(request);
                 if (request.x == message.x) {
                     // set the result
-                    request.y.setResult(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(message.y));
+                    List<ChatMessageDTO> chatMessages = new ArrayList<>();
+                    for (String sMessage: message.y.getChatHistory()) {
+                        ChatMessageDTO chatMessage = new ChatMessageDTO();
+                        String splitMessage[] = sMessage.split(":", 2);
+                        if (splitMessage.length == 1) {
+                            chatMessage.setMessage(splitMessage[0]);
+                        } else {
+                            chatMessage.setUsername(splitMessage[0]);
+                            chatMessage.setMessage(splitMessage[1]);
+                        }
+                        chatMessages.add(chatMessage);
+                    }
+                    request.y.setResult(chatMessages);
+
                 }
             }
-            for (Pair<Long, DeferredResult<LobbyGetDTO>> resolved: resolvedRequests) {
+            for (Pair<Long, DeferredResult<List<ChatMessageDTO>>> resolved: resolvedRequests) {
                 resultList.remove(resolved);
             }
         } catch (InterruptedException e) {
@@ -92,7 +105,7 @@ public class LobbyPollService implements Runnable {
       }
     }
 
-    public void pollGetUpdate(DeferredResult<LobbyGetDTO> result, Long id) {
-        resultList.add(new Pair<Long, DeferredResult<LobbyGetDTO>> (id, result));
+    public void pollGetUpdate(DeferredResult<List<ChatMessageDTO>> result, Long id) {
+        resultList.add(new Pair<Long, DeferredResult<List<ChatMessageDTO>>> (id, result));
     }
 }

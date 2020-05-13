@@ -79,6 +79,7 @@ public class LobbyPollWorker implements Runnable {
         while (iter.hasNext()) {
             if (iter.next().x == id) {
                 iter.remove();
+                return;
             }
         }
     }
@@ -98,6 +99,7 @@ public class LobbyPollWorker implements Runnable {
                 for (Pair<Long, Lobby> subscription: subscriptions) {
                     Lobby lobby = getExistingLobby(subscription.x);
                     Lobby subscribedLobby = subscription.y;
+                    System.out.println(lobby.toString() + subscribedLobby.toString());
 
                     if (!lobby.toString().equals(subscribedLobby.toString())) {
                         Pair<Long, Lobby> newData = new Pair(subscription.x, lobby);
@@ -105,7 +107,7 @@ public class LobbyPollWorker implements Runnable {
                         subscription.y = lobby;
                     }
                 }
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(1);
              } catch (InterruptedException e) {
                  throw new ServiceException("Cannot get latest update. ");
              }

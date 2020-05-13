@@ -34,13 +34,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/userpoll/{userId}/subscribe")
+    @PostMapping("/userpoll/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void subscribe(@PathVariable Long userId){
         userService.subscribe(userId);
     }
 
-    @GetMapping("/userpoll/{userId}/unsubscribe")
+    @DeleteMapping("/userpoll/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long userId){
         userService.unsubscribe(userId);

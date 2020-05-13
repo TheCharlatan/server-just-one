@@ -47,13 +47,13 @@ public class GameController {
         return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
     }
 
-    @GetMapping("/gamepoll/{gameId}/subscribe")
+    @PostMapping("/gamepoll/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     public void subscribe(@PathVariable Long gameId){
         gameService.subscribe(gameId);
     }
 
-    @GetMapping("/gamepoll/{gameId}/unsubscribe")
+    @DeleteMapping("/gamepoll/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long gameId){
         gameService.unsubscribe(gameId);
