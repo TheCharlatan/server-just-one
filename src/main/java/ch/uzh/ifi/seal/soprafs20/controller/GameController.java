@@ -61,9 +61,9 @@ public class GameController {
 
     @GetMapping("/gamepoll/{gameId}")
     @ResponseStatus(HttpStatus.OK)
-    DeferredResult<GameGetDTO> poll(@PathVariable Long gameId){
+    public DeferredResult<GameGetDTO> poll(@PathVariable Long gameId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<GameGetDTO> finalResult  = new DeferredResult<GameGetDTO>(60000l);
+        final DeferredResult<GameGetDTO> finalResult  = new DeferredResult<>(60000l);
         gameService.pollGetUpdate(finalResult, gameId);
         return finalResult;
     }

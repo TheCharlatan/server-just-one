@@ -11,21 +11,11 @@ import ch.uzh.ifi.seal.soprafs20.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 @Service
 @Transactional
@@ -33,7 +23,7 @@ public class GamePollService implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(GamePollService.class);
 
-    private ArrayList<Pair<Long, DeferredResult<GameGetDTO>>> resultList = new ArrayList<Pair<Long, DeferredResult<GameGetDTO>>>();
+    private ArrayList<Pair<Long, DeferredResult<GameGetDTO>>> resultList = new ArrayList<>();
     private GamePollWorker worker;
 
     private Thread thread;

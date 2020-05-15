@@ -12,11 +12,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import javax.persistence.Basic;
 import java.util.ArrayList;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -77,9 +75,9 @@ public class LobbyController {
 
     @GetMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
-    DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
+    public DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<LobbyGetDTO>(60000l);
+        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<>(60000l);
         lobbyService.pollGetUpdate(finalResult, lobbyId);
         return finalResult;
     }
@@ -97,21 +95,5 @@ public class LobbyController {
     public void removePlayer(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id,
                              @RequestBody long userId, @RequestParam Boolean browserClose) {
         lobbyService.removePlayerFromLobby(id,userId, browserClose);
-    }
-
-    @GetMapping("/lobby/{id}/chat")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<ChatMessageDTO> getChatMessages(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<>();
-        chatHistory.add(chatMessageDTO);
-        return chatHistory;
-    }
-
-    @PostMapping("/lobby/{id}/chat")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void addChatMessage(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody ChatMessageDTO chatMessageDTO) {
     }
 }

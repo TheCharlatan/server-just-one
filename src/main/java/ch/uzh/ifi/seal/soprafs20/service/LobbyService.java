@@ -129,14 +129,12 @@ public class LobbyService {
         }
 
         //Changing host when host player leaves the lobby
-        if(lobby.getHostPlayerId() == userId){
-            if(lobby.getPlayerIds().size()>0) {
-                lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
-                User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
-                newLobbyHost.setLobbyId(id);
-                userRepository.save(newLobbyHost);
-                userRepository.flush();
-            }
+        if(lobby.getHostPlayerId() == userId && lobby.getPlayerIds().size() > 0){
+            lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+            User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
+            newLobbyHost.setLobbyId(id);
+            userRepository.save(newLobbyHost);
+            userRepository.flush();
         }
         User user = getExistingUser(userId);
         if(user.getLobbyId()==id){
