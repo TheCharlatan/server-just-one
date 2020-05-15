@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.service.ChatPollService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +83,6 @@ public class ChatService {
         } catch (Exception e) {
             throw new NotFoundException("Cannot subscribe to a non-existing chat");
         }
-        //getExistingChat(id);
         chatPollService.subscribe(id);
     }
 

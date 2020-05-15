@@ -3,7 +3,6 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.ArrayList;
 import java.net.URI;
 import java.util.List;
 
@@ -69,7 +67,6 @@ public class LobbyController {
     @DeleteMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long lobbyId){
-        System.out.println(lobbyId);
         lobbyService.unsubscribe(lobbyId);
     }
 

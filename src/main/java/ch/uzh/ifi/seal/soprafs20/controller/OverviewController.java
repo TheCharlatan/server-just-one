@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +52,7 @@ public class OverviewController {
 
     @GetMapping("/chatpoll/{chatId}")
     @ResponseStatus(HttpStatus.OK)
-    DeferredResult<List<ChatMessageDTO>> poll(@PathVariable Long chatId){
+    public DeferredResult<List<ChatMessageDTO>> poll(@PathVariable Long chatId){
         // create deferred result that times out after 60 seconds
         final DeferredResult<List<ChatMessageDTO>> finalResult  = new DeferredResult<List<ChatMessageDTO>>(60000l);
         chatService.pollGetUpdate(finalResult, chatId);

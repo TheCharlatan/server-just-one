@@ -4,30 +4,19 @@ import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
-import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.worker.ChatPollWorker;
 import ch.uzh.ifi.seal.soprafs20.utils.Pair;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
-//@Service("ChatPollService")
 @Service
 @Transactional
 public class ChatPollService implements Runnable {
@@ -99,7 +88,7 @@ public class ChatPollService implements Runnable {
             for (Pair<Long, DeferredResult<List<ChatMessageDTO>>> resolved: resolvedRequests) {
                 resultList.remove(resolved);
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new ServiceException("Cannot get latest update. ");
         }
       }
