@@ -119,29 +119,6 @@ public class LobbyControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    public void addChatMessage() throws Exception {
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        MockHttpServletRequestBuilder postRequest = post("/lobby/1/chat")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(chatMessageDTO))
-                .header("X-Auth-Token","supersecrettokenvalue");
-
-        mockMvc.perform(postRequest)
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    public void getChatMessages() throws Exception {
-        MockHttpServletRequestBuilder getRequest = get("/lobby/1/chat")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("X-Auth-Token","supersecrettokenvalue");
-
-        mockMvc.perform(getRequest)
-                .andExpect(status().isOk());
-    }
-
-
     /**
      * Helper Method to convert lobbyPostDTO into a JSON string such that the input can be processed
      * Input will look like this: {"name": "Test Lobby", "lobbyname": "testLobbyname"}

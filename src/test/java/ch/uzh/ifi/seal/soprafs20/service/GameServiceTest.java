@@ -470,10 +470,10 @@ public class GameServiceTest {
     public void getAllWordsFromList_Full() {
         ArrayList<String> words = gameService.getAllWordsFromWordList();
         for (String word: words) {
-            assert (!word.equals(""));
+            assertNotEquals("", word);
         }
-        assert(words.get(0).equals("Alcatraz"));
-        assert(words.get(274).equals("Book"));
+        assertEquals("Alcatraz", words.get(0));
+        assertEquals("Book", words.get(274));
     }
 
 
@@ -482,7 +482,7 @@ public class GameServiceTest {
         ArrayList<String> words = gameService.selectGameWords();
         assert(words.size() == 5*13);
         for (String word: words) {
-            assert (!word.equals(""));
+            assertNotEquals("", word);
         }
     }
 /*
