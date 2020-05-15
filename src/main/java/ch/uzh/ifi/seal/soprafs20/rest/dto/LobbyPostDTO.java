@@ -16,11 +16,11 @@ public class LobbyPostDTO {
         this.name = name;
     }
 
-    public Long gethostPlayerId() {
+    public Long getHostPlayerId() {
         return hostPlayerId;
     }
 
-    public void sethostPlayerId(Long hostPlayerId) {
+    public void setHostPlayerId(Long hostPlayerId) {
         this.hostPlayerId = hostPlayerId;
     }
 
