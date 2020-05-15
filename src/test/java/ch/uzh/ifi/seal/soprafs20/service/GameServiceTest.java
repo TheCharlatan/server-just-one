@@ -373,6 +373,26 @@ public class GameServiceTest {
     }
 
     @Test
+    public void acceptWordSuccess() {
+        testGame.setGameStatus(GameStatus.AWAITING_INDEX);
+        ArrayList<Long> testAccept = new ArrayList<>();
+        assertEquals(testAccept, testGame.getCountAccept());
+
+        // first player accepts, nothing should be changing
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        gameService.acceptWord(0l ,0l);
+        testAccept.add(0l);
+        assertEquals(testAccept, testGame.getCountAccept());
+        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_INDEX);
+
+        // second player accept, status changes
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        gameService.acceptWord(0l, 1l);
+        assertEquals(new ArrayList<Long>(), testGame.getCountAccept());
+        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_CLUES);
+    }
+
+    @Test
     public void clueAccepted() {
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));

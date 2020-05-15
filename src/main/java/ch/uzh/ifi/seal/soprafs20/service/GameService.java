@@ -231,7 +231,7 @@ public class GameService {
         userAccepted.add(userId);
         game.setCountAccept(userAccepted);
 
-        if(game.getCountAccept().size() == game.getPlayerIds().size() - 1) {
+        if(game.getCountAccept().size() >= game.getPlayerIds().size() - 1) {
             game.setCardStatus(CardStatus.AWAITING_CLUES);
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             List<Long> empty = new ArrayList<>();
