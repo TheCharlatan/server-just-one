@@ -1,8 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.worker;
 
-import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
+import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.utils.Pair;
@@ -30,28 +29,28 @@ import java.util.concurrent.BlockingQueue;
 
 @Service
 @Transactional
-public class UserPollWorker implements Runnable {
+public class ChatPollWorker implements Runnable {
 
     private Thread thread;
 
     private volatile boolean start = true;
 
-    public LinkedBlockingQueue<Pair<Long, User>> queue = new LinkedBlockingQueue<>();
+    public LinkedBlockingQueue<Pair<Long, Chat>> queue = new LinkedBlockingQueue<>();
 
-    private ArrayList<Pair<Long, User>> subscriptions = new ArrayList();
-    private UserRepository userRepository;
+    private ArrayList<Pair<Long, Chat>> subscriptions = new ArrayList();
+    private ChatRepository chatRepository;
 
     @Autowired
-    public UserPollWorker(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ChatPollWorker(ChatRepository chatRepository) {
+        this.chatRepository = chatRepository;
     }
 
     // subscribe the resource
     public void subscribe(Long id) {
         // create a new subscription
-        Pair<Long, User> subscribed = new Pair(id, getExistingUser(id));
-        // check if we are already subscribed to that user
-        for (Pair<Long, User> subscription: subscriptions) {
+        Pair<Long, Chat> subscribed = new Pair(id, getExistingChat(id));
+        // check if we are already subscribed to that chat
+        for (Pair<Long, Chat> subscription: subscriptions) {
             if (subscription.x == id) {
                 return;
             }
@@ -67,7 +66,7 @@ public class UserPollWorker implements Runnable {
             synchronized (this) {
                 if (start) {
                     start = false;
-                    thread = new Thread(this, "User Worker Thread");
+                    thread = new Thread(this, "Chat Worker Thread");
                     thread.start();
                 }
             }
@@ -76,7 +75,7 @@ public class UserPollWorker implements Runnable {
 
     // unsubscribe the resource
     public void unsubscribe(Long id) {
-        Iterator<Pair<Long, User>> iter = subscriptions.iterator();
+        Iterator<Pair<Long, Chat>> iter = subscriptions.iterator();
         while (iter.hasNext()) {
             if (iter.next().x == id) {
                 iter.remove();
@@ -84,26 +83,26 @@ public class UserPollWorker implements Runnable {
         }
     }
 
-    private User getExistingUser(long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (!optionalUser.isPresent()) {
-            throw new NotFoundException(String.format("Could not find user with id %d.", id));
+    private Chat getExistingChat(long id) {
+        Optional<Chat> optionalChat = chatRepository.findById(id);
+        if (!optionalChat.isPresent()) {
+            throw new NotFoundException(String.format("Could not find chat with id %d.", id));
         }
-        return optionalUser.get();
+        return optionalChat.get();
     }
 
     @Override
     public void run() {
         while(true) {
             try {
-                for (Pair<Long, User> subscription: subscriptions) {
-                    User user = getExistingUser(subscription.x);
-                    User subscribedUser = subscription.y;
+                for (Pair<Long, Chat> subscription: subscriptions) {
+                    Chat chat = getExistingChat(subscription.x);
+                    Chat subscribedChat = subscription.y;
 
-                    if (!user.toString().equals(subscribedUser.toString())) {
-                        Pair<Long, User> newData = new Pair(subscription.x, user);
+                    if (!chat.toString().equals(subscribedChat.toString())) {
+                        Pair<Long, Chat> newData = new Pair(subscription.x, chat);
                         queue.add(newData);
-                        subscription.y = user;
+                        subscription.y = chat;
                     }
                 }
                 TimeUnit.SECONDS.sleep(1);

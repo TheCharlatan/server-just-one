@@ -105,7 +105,7 @@ public class GamePollWorker implements Runnable {
                         subscription.y = game;
                     }
                 }
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(1);
              } catch (InterruptedException e) {
                  throw new ServiceException("Cannot get latest update. ");
              }

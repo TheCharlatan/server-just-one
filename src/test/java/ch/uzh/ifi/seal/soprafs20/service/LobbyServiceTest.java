@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ public class LobbyServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    ChatRepository chatRepository;
 
     @InjectMocks
     LobbyService lobbyService;

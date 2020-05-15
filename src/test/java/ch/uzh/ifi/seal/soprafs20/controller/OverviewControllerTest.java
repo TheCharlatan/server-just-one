@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -36,13 +38,17 @@ public class OverviewControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private ChatService chatService;
+
     @Test
     public void addChatMessage() throws Exception {
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        MockHttpServletRequestBuilder postRequest = post("/chat")
+        MockHttpServletRequestBuilder postRequest = post("/chat/0")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(chatMessageDTO))
                 .header("X-Auth-Token","supersecrettokenvalue");
+
 
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated());
@@ -50,14 +56,13 @@ public class OverviewControllerTest {
 
     @Test
     public void getChatMessages() throws Exception {
-        MockHttpServletRequestBuilder getRequest = get("/chat")
+        MockHttpServletRequestBuilder getRequest = get("/chat/0")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Auth-Token","supersecrettokenvalue");
 
         mockMvc.perform(getRequest)
                 .andExpect(status().isOk());
     }
-
 
     /**
      * Helper Method to convert overviewPostDTO into a JSON string such that the input can be processed
