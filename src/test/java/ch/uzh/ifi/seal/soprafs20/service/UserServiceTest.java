@@ -184,6 +184,14 @@ public class UserServiceTest {
     }
 
     @Test
+    public void online_status_check() {
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        User user = userService.login("testUsername", "testPassword");
+
+        assertEquals(UserStatus.ONLINE, user.getStatus());
+    }
+
+    @Test
     public void login_invalid_username() {
         assertThrows(AuthenticationException.class, () -> userService.login("invalidUsername", "testPassword"));
     }
