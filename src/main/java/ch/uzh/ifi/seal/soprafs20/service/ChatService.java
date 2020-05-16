@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.service.ChatPollService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -44,6 +45,10 @@ public class ChatService {
     }
 
     public void addChatMessage(long id, ChatMessageDTO message){
+        if (message.getMessage().length() + message.getUsername().length() >= 250) {
+            throw new ServiceException("This message is too long");
+        }
+
         Chat chat = getExistingChat(id);
         List<String> chatListOrig = chat.getChatHistory();
         Collections.reverse(chatListOrig);
