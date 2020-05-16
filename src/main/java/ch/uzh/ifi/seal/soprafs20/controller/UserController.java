@@ -123,8 +123,8 @@ public class UserController {
     @PutMapping("/user/{userId}/edit")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserUpdateDTO updateUser(@RequestHeader("X-Auth-Token") String token, @RequestBody UserUpdateDTO user, @PathVariable Long userId){
-        return new UserUpdateDTO();
+    public UserGetDTO updateUser(@RequestHeader("X-Auth-Token") String token, @RequestBody UserUpdateDTO userUpdateDTO, @PathVariable Long userId){
+        return userService.updateUser(userId, userUpdateDTO);
     }
 
     @PutMapping("/user/{userId}/invitation")
