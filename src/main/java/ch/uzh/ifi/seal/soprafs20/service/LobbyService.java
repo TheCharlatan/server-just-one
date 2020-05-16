@@ -4,10 +4,12 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.exceptions.LobbyException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +34,15 @@ public class LobbyService {
 
 
     private final LobbyRepository lobbyRepository;
+    private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final LobbyPollService lobbyPollService;
 
     @Autowired
-    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, @Qualifier("userRepository") UserRepository userRepository) {
+    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("chatRepository") ChatRepository chatRepository) {
         this.lobbyRepository = lobbyRepository;
         this.userRepository = userRepository;
+        this.chatRepository = chatRepository;
         this.lobbyPollService = new LobbyPollService(lobbyRepository);
     }
 
@@ -53,8 +57,12 @@ public class LobbyService {
         user.setLobbyId(newLobby.getId());
         userRepository.save(user);
 
-        return newLobby.getId();
+        Chat chat = new Chat();
+        chat.setId(newLobby.getId());
+        chatRepository.save(chat);
+        chatRepository.flush();
 
+        return newLobby.getId();
     }
 
     public void updateStatusOfLobby(long id, int status){
@@ -121,14 +129,12 @@ public class LobbyService {
         }
 
         //Changing host when host player leaves the lobby
-        if(lobby.getHostPlayerId() == userId){
-            if(lobby.getPlayerIds().size()>0) {
-                lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
-                User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
-                newLobbyHost.setLobbyId(id);
-                userRepository.save(newLobbyHost);
-                userRepository.flush();
-            }
+        if(lobby.getHostPlayerId() == userId && lobby.getPlayerIds().size() > 0){
+            lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
+            User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
+            newLobbyHost.setLobbyId(id);
+            userRepository.save(newLobbyHost);
+            userRepository.flush();
         }
         User user = getExistingUser(userId);
         if(user.getLobbyId()==id){

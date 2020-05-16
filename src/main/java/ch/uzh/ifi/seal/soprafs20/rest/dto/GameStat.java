@@ -1,11 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import ch.uzh.ifi.seal.soprafs20.constant.CardStatus;
-import ch.uzh.ifi.seal.soprafs20.constant.GameStatus;
-
-import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GameStat {

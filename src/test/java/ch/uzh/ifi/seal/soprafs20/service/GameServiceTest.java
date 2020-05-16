@@ -373,6 +373,26 @@ public class GameServiceTest {
     }
 
     @Test
+    public void acceptWordSuccess() {
+        testGame.setGameStatus(GameStatus.AWAITING_INDEX);
+        ArrayList<Long> testAccept = new ArrayList<>();
+        assertEquals(testAccept, testGame.getCountAccept());
+
+        // first player accepts, nothing should be changing
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        gameService.acceptWord(0l ,0l);
+        testAccept.add(0l);
+        assertEquals(testAccept, testGame.getCountAccept());
+        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_INDEX);
+
+        // second player accept, status changes
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn((Optional.of(testGame)));
+        gameService.acceptWord(0l, 1l);
+        assertEquals(new ArrayList<Long>(), testGame.getCountAccept());
+        assertEquals(testGame.getGameStatus(), GameStatus.AWAITING_CLUES);
+    }
+
+    @Test
     public void clueAccepted() {
         testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
@@ -470,10 +490,10 @@ public class GameServiceTest {
     public void getAllWordsFromList_Full() {
         ArrayList<String> words = gameService.getAllWordsFromWordList();
         for (String word: words) {
-            assert (!word.equals(""));
+            assertNotEquals("", word);
         }
-        assert(words.get(0).equals("Alcatraz"));
-        assert(words.get(274).equals("Book"));
+        assertEquals("Alcatraz", words.get(0));
+        assertEquals("Book", words.get(274));
     }
 
 
@@ -482,7 +502,7 @@ public class GameServiceTest {
         ArrayList<String> words = gameService.selectGameWords();
         assert(words.size() == 5*13);
         for (String word: words) {
-            assert (!word.equals(""));
+            assertNotEquals("", word);
         }
     }
 /*

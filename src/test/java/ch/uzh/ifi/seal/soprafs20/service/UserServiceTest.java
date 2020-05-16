@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.UserUpdateDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,12 +13,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserServiceTest {
 
@@ -265,4 +265,26 @@ public class UserServiceTest {
         assertEquals(60, userList.get(0).getScore());
 
     }
+
+    public void updateUser() {
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
+        UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
+        userUpdateDTO.setName("updateName");
+        userUpdateDTO.setUsername("updateUsername");
+        userUpdateDTO.setCountry("updateCountry");
+        userUpdateDTO.setGender('f');
+        Date date = new Date();
+        userUpdateDTO.setBirthDay(date);
+
+        userService.updateUser(1L, userUpdateDTO);
+
+        assertEquals(testUser.getUsername(), userUpdateDTO.getUsername());
+        assertEquals(testUser.getName(), userUpdateDTO.getName());
+        assertEquals(testUser.getCountry(), userUpdateDTO.getCountry());
+        assertEquals(testUser.getGender(), userUpdateDTO.getGender());
+        assertEquals(testUser.getBirthDay(), userUpdateDTO.getBirthDay());
+
+
+    }
+
 }

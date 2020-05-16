@@ -6,26 +6,15 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.utils.Pair;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 @Service
 @Transactional
@@ -48,7 +37,7 @@ public class LobbyPollWorker implements Runnable {
     // subscribe the resource
     public void subscribe(Long id) {
         // create a new subscription
-        Pair<Long, Lobby> subscribed = new Pair(id, getExistingLobby(id));
+        Pair<Long, Lobby> subscribed = new Pair<>(id, getExistingLobby(id));
         // check if we are already subscribed to that lobby
         for (Pair<Long, Lobby> subscription: subscriptions) {
             if (subscription.x == id) {
@@ -79,6 +68,7 @@ public class LobbyPollWorker implements Runnable {
         while (iter.hasNext()) {
             if (iter.next().x == id) {
                 iter.remove();
+                return;
             }
         }
     }
@@ -98,6 +88,7 @@ public class LobbyPollWorker implements Runnable {
                 for (Pair<Long, Lobby> subscription: subscriptions) {
                     Lobby lobby = getExistingLobby(subscription.x);
                     Lobby subscribedLobby = subscription.y;
+                    System.out.println(lobby.toString() + subscribedLobby.toString());
 
                     if (!lobby.toString().equals(subscribedLobby.toString())) {
                         Pair<Long, Lobby> newData = new Pair(subscription.x, lobby);
@@ -105,7 +96,7 @@ public class LobbyPollWorker implements Runnable {
                         subscription.y = lobby;
                     }
                 }
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(1);
              } catch (InterruptedException e) {
                  throw new ServiceException("Cannot get latest update. ");
              }

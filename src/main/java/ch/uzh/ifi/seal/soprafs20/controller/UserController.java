@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -17,8 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * User Controller
@@ -34,13 +31,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/userpoll/{userId}/subscribe")
+    @PostMapping("/userpoll/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void subscribe(@PathVariable Long userId){
         userService.subscribe(userId);
     }
 
-    @GetMapping("/userpoll/{userId}/unsubscribe")
+    @DeleteMapping("/userpoll/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long userId){
         userService.unsubscribe(userId);
@@ -48,9 +45,9 @@ public class UserController {
 
     @GetMapping("/userpoll/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    DeferredResult<UserGetDTO> poll(@PathVariable Long userId){
+    public DeferredResult<UserGetDTO> poll(@PathVariable Long userId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<UserGetDTO> finalResult  = new DeferredResult<UserGetDTO>(60000l);
+        final DeferredResult<UserGetDTO> finalResult  = new DeferredResult<>(60000l);
         userService.pollGetUpdate(finalResult, userId);
         return finalResult;
     }
@@ -126,8 +123,8 @@ public class UserController {
     @PutMapping("/user/{userId}/edit")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserUpdateDTO updateUser(@RequestHeader("X-Auth-Token") String token, @RequestBody UserUpdateDTO user, @PathVariable Long userId){
-        return new UserUpdateDTO();
+    public UserGetDTO updateUser(@RequestHeader("X-Auth-Token") String token, @RequestBody UserUpdateDTO userUpdateDTO, @PathVariable Long userId){
+        return userService.updateUser(userId, userUpdateDTO);
     }
 
     @PutMapping("/user/{userId}/invitation")

@@ -3,7 +3,6 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import org.springframework.http.HttpStatus;
@@ -12,11 +11,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import javax.persistence.Basic;
-import java.util.ArrayList;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -62,13 +58,13 @@ public class LobbyController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
-    @GetMapping("/lobbypoll/{lobbyId}/subscribe")
+    @PostMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     public void subscribe(@PathVariable Long lobbyId){
         lobbyService.subscribe(lobbyId);
     }
 
-    @GetMapping("/lobbypoll/{lobbyId}/unsubscribe")
+    @DeleteMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     public void unsubscribe(@PathVariable Long lobbyId){
         lobbyService.unsubscribe(lobbyId);
@@ -76,9 +72,9 @@ public class LobbyController {
 
     @GetMapping("/lobbypoll/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
-    DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
+    public DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<LobbyGetDTO>(60000l);
+        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<>(60000l);
         lobbyService.pollGetUpdate(finalResult, lobbyId);
         return finalResult;
     }
@@ -96,21 +92,5 @@ public class LobbyController {
     public void removePlayer(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id,
                              @RequestBody long userId, @RequestParam Boolean browserClose) {
         lobbyService.removePlayerFromLobby(id,userId, browserClose);
-    }
-
-    @GetMapping("/lobby/{id}/chat")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<ChatMessageDTO> getChatMessages(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id) {
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        ArrayList<ChatMessageDTO> chatHistory = new ArrayList<>();
-        chatHistory.add(chatMessageDTO);
-        return chatHistory;
-    }
-
-    @PostMapping("/lobby/{id}/chat")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void addChatMessage(@RequestHeader("X-Auth-Token") String token, @PathVariable("id") long id, @RequestBody ChatMessageDTO chatMessageDTO) {
     }
 }

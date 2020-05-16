@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Internal Chat Representation
@@ -18,11 +19,11 @@ public class Chat implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
     private Long id;
 
-    @Basic
-    private ArrayList<String> chatHistory;
+    @Column()
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> chatHistory = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -32,11 +33,19 @@ public class Chat implements Serializable {
         this.id = id;
     }
 
-    public ArrayList<String> getChatHistory() {
+    public List<String> getChatHistory() {
         return chatHistory;
     }
 
-    public void setChatHistory(ArrayList<String> chatHistory) {
+    public void setChatHistory(List<String> chatHistory) {
         this.chatHistory = chatHistory;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", chatHistory='" + chatHistory +
+                '}';
     }
 }

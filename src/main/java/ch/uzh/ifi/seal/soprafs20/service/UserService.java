@@ -3,9 +3,9 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.hibernate.boot.model.relational.Database;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.Null;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * User Service
@@ -162,5 +161,30 @@ public class UserService {
         user.setStatus(UserStatus.OFFLINE);
         userRepository.save(user);
         userRepository.flush();
+    }
+
+    public UserGetDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO) {
+        User user = getExistingUser(userId);
+
+        if (!userUpdateDTO.getName().isEmpty()) {
+            user.setName(userUpdateDTO.getName());
+        }
+        if (!userUpdateDTO.getUsername().isEmpty()) {
+            user.setUsername(userUpdateDTO.getUsername());
+        }
+        if (userUpdateDTO.getGender() == 'f' || userUpdateDTO.getGender() == 'm') {
+            user.setGender(userUpdateDTO.getGender());
+        }
+        if (!userUpdateDTO.getCountry().isEmpty()) {
+            user.setCountry(userUpdateDTO.getCountry());
+        }
+        if(userUpdateDTO.getBirthDay() != null) {
+            user.setBirthDay(userUpdateDTO.getBirthDay());
+        }
+
+        userRepository.save(user);
+        userRepository.flush();
+
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 }
