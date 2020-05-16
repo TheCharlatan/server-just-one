@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.Null;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -51,7 +52,10 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
-
+        if(newUser.getName()==null || newUser.getName().isBlank()){
+            newUser.setName(newUser.getUsername());
+        }
+        newUser.setUsername(newUser.getUsername().toLowerCase());
         checkIfUserExists(newUser);
 
         newUser.setToken(UUID.randomUUID().toString());
@@ -68,7 +72,7 @@ public class UserService {
     }
 
     public User login(String username, String password) {
-        User userByUsername = userRepository.findByUsername(username);
+        User userByUsername = userRepository.findByUsername(username.toLowerCase());
         if (userByUsername == null) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
         }
