@@ -266,6 +266,7 @@ public class UserServiceTest {
 
     }
 
+    @Test
     public void updateUser() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
