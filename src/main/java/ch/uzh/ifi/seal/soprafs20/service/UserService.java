@@ -177,6 +177,9 @@ public class UserService {
         if(userUpdateDTO.getBirthDay() != null) {
             user.setBirthDay(userUpdateDTO.getBirthDay());
         }
+        if(!userUpdateDTO.getImage().isEmpty()) {
+            user.setImage(userUpdateDTO.getImage());
+        }
 
         userRepository.save(user);
         userRepository.flush();
