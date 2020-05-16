@@ -69,6 +69,7 @@ public interface DTOMapper {
     @Mapping(source = "gender", target = "gender")
     @Mapping(source = "country", target = "country")
     @Mapping(source = "birthDay", target = "birthDay")
+    @Mapping(source = "image", target = "image")
     UserUpdateDTO convertEntityToUserUpdateDTO(User user);
 
     @Mapping(source = "name", target = "name")

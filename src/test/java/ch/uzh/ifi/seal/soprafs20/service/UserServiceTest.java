@@ -157,6 +157,7 @@ public class UserServiceTest {
         userUpdateDTO.setGender('f');
         Date date = new Date();
         userUpdateDTO.setBirthDay(date);
+        userUpdateDTO.setImage("lion");
 
         userService.updateUser(1L, userUpdateDTO);
 
@@ -165,6 +166,7 @@ public class UserServiceTest {
         assertEquals(testUser.getCountry(), userUpdateDTO.getCountry());
         assertEquals(testUser.getGender(), userUpdateDTO.getGender());
         assertEquals(testUser.getBirthDay(), userUpdateDTO.getBirthDay());
+        assertEquals(testUser.getImage(), userUpdateDTO.getImage());
 
 
     }

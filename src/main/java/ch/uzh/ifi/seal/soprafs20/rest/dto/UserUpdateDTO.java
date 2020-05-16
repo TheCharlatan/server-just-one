@@ -10,6 +10,7 @@ public class UserUpdateDTO {
     private char gender;
     private String country;
     private Date birthDay;
+    private String image;
 
     public Long getId() {
         return id;
@@ -57,5 +58,13 @@ public class UserUpdateDTO {
 
     public void setBirthDay(Date birthDay) {
         this.birthDay = birthDay;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String imageHolder) {
+        this.image = imageHolder;
     }
 }
