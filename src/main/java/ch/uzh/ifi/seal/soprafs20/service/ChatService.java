@@ -29,10 +29,8 @@ import java.util.Collections;
 @Transactional
 public class ChatService {
 
-
     private final ChatRepository chatRepository;
     private final ChatPollService chatPollService;
-
 
     @Autowired
     public ChatService(@Qualifier("chatRepository") ChatRepository chatRepository) {
@@ -40,8 +38,7 @@ public class ChatService {
         this.chatPollService = new ChatPollService(chatRepository);
         Chat chat = new Chat();
         chat.setId(1l);
-        chatRepository.save(chat);
-        chatRepository.flush();
+        saveChat(chat);
     }
 
     public void addChatMessage(long id, ChatMessageDTO message){
@@ -60,8 +57,7 @@ public class ChatService {
         ArrayList<String> chatList = new ArrayList(chatQueue);
         Collections.reverse(chatList);
         chat.setChatHistory(chatList);
-        chatRepository.save(chat);
-        chatRepository.flush();
+        saveChat(chat);
     }
 
     public List<ChatMessageDTO> getChatMessages(long id) {
@@ -106,6 +102,12 @@ public class ChatService {
         chatPollService.pollGetUpdate(result, id);
     }
 
+    public void saveChat(Chat chat) {
+        chatRepository.save(chat);
+        chatRepository.flush();
+        chatPollService.notify(chat.getId());
+    }
+
     public Chat getExistingChat(long id) {
         Optional<Chat> optionalChat = chatRepository.findById(id);
         if (optionalChat.isPresent()) {
@@ -114,8 +116,7 @@ public class ChatService {
         // the chat does not exist yet, create it
         Chat chat = new Chat();
         chat.setId(id);
-        chatRepository.save(chat);
-        chatRepository.flush();
+        saveChat(chat);
         return chat;
     }
 }
