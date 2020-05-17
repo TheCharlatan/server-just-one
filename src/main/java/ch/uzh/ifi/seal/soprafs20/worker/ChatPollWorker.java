@@ -79,6 +79,7 @@ public class ChatPollWorker implements Runnable {
         while (iter.hasNext()) {
             if (iter.next().x == id) {
                 iter.remove();
+                return;
             }
         }
     }
@@ -86,7 +87,8 @@ public class ChatPollWorker implements Runnable {
     private Chat getExistingChat(long id) {
         Optional<Chat> optionalChat = chatRepository.findById(id);
         if (!optionalChat.isPresent()) {
-            throw new NotFoundException(String.format("Could not find chat with id %d.", id));
+            subscriptions.remove(id);
+            return new Chat();
         }
         return optionalChat.get();
     }

@@ -76,15 +76,16 @@ public class LobbyPollWorker implements Runnable {
     private Lobby getExistingLobby(long id) {
         Optional<Lobby> optionalLobby = lobbyRepository.findById(id);
         if (!optionalLobby.isPresent()) {
-            throw new NotFoundException(String.format("Could not find lobby with id %d.", id));
+            subscriptions.remove(id);
+            return new Lobby();
         }
         return optionalLobby.get();
     }
 
     @Override
     public void run() {
-        while(true) {
-            try {
+        try {
+            while(true) {
                 for (Pair<Long, Lobby> subscription: subscriptions) {
                     Lobby lobby = getExistingLobby(subscription.x);
                     Lobby subscribedLobby = subscription.y;
@@ -97,9 +98,10 @@ public class LobbyPollWorker implements Runnable {
                     }
                 }
                 TimeUnit.SECONDS.sleep(1);
-             } catch (InterruptedException e) {
-                 throw new ServiceException("Cannot get latest update. ");
-             }
+            }
+        } catch (InterruptedException e) {
+            start = true;
+            throw new ServiceException("Cannot get latest update. ");
         }
     }
 }
