@@ -105,7 +105,9 @@ public class ChatPollWorker implements Runnable {
                 Long chatId = notifications.take();
                 for (Pair<Long, Chat> subscription: subscriptions) {
                     if (chatId == subscription.x) {
+                        // for some reason we need to call this twice :( - I hate databases packed into silly frameworks!
                         Chat chat = getExistingChat(subscription.x);
+                        chat = getExistingChat(subscription.x);
                         Pair<Long, Chat> newData = new Pair(subscription.x, chat);
                         queue.add(newData);
                         subscription.y = chat;

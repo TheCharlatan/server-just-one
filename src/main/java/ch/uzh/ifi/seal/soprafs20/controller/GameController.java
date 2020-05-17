@@ -47,27 +47,6 @@ public class GameController {
         return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
     }
 
-    @PostMapping("/gamepoll/{gameId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void subscribe(@PathVariable Long gameId){
-        gameService.subscribe(gameId);
-    }
-
-    @DeleteMapping("/gamepoll/{gameId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void unsubscribe(@PathVariable Long gameId){
-        gameService.unsubscribe(gameId);
-    }
-
-    @GetMapping("/gamepoll/{gameId}")
-    @ResponseStatus(HttpStatus.OK)
-    public DeferredResult<GameGetDTO> poll(@PathVariable Long gameId){
-        // create deferred result that times out after 60 seconds
-        final DeferredResult<GameGetDTO> finalResult  = new DeferredResult<>(60000l);
-        gameService.pollGetUpdate(finalResult, gameId);
-        return finalResult;
-    }
-
     @PutMapping("/game/{id}/number")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

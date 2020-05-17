@@ -42,7 +42,6 @@ public class GameService {
     private GameRepository gameRepository;
     private UserRepository userRepository;
     private LobbyService lobbyService;
-    private GamePollService gamePollService;
 
     private Random rand = new Random();
     private WordCheck wordChecker = new WordCheck();
@@ -54,32 +53,6 @@ public class GameService {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.lobbyService = lobbyService;
-        this.gamePollService = new GamePollService(gameRepository);
-    }
-
-    // subscription method for a certain game id
-    public void subscribe(Long id) {
-        try {
-            gameRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new NotFoundException("Cannot subscribe to a non-existing game");
-        }
-        gamePollService.subscribe(id);
-    }
-
-    // unsubscription method for a certain game id
-    public void unsubscribe(Long id) {
-        gamePollService.unsubscribe(id);
-    }
-
-    // async, returns once there is a change for the game id
-    public void pollGetUpdate(DeferredResult<GameGetDTO> result, Long id) {
-        try {
-            gameRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new NotFoundException("Cannot poll for a non-existing game");
-        }
-        gamePollService.pollGetUpdate(result, id);
     }
 
     public Long createGame(List<Long> players) {
