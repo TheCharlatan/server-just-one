@@ -45,6 +45,10 @@ public class ChatPollService implements Runnable {
         worker.unsubscribe(id);
     }
 
+    public void notify(Long id) {
+        worker.notify(id);
+    }
+
     private void startThread() {
         if (start) {
             synchronized (this) {

@@ -74,7 +74,7 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     public DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<>(60000l);
+        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<>(10000l);
         lobbyService.pollGetUpdate(finalResult, lobbyId);
         return finalResult;
     }

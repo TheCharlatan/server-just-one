@@ -52,6 +52,7 @@ public class LobbyService {
         newLobby.getPlayerIds().add(newLobby.getHostPlayerId());
 
         newLobby = lobbyRepository.save(newLobby);
+        lobbyRepository.flush();
 
         User user = userRepository.getOne(newLobby.getHostPlayerId());
         user.setLobbyId(newLobby.getId());
@@ -73,6 +74,8 @@ public class LobbyService {
 
     public void saveOrUpdate(Lobby updateLobby){
         lobbyRepository.save(updateLobby);
+        lobbyRepository.flush();
+        lobbyPollService.notify(updateLobby.getId());
     }
 
     public List<LobbyGetDTO> getAllLobbies(){

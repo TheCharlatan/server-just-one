@@ -25,6 +25,7 @@ public class LobbyPollWorker implements Runnable {
     private volatile boolean start = true;
 
     public LinkedBlockingQueue<Pair<Long, Lobby>> queue = new LinkedBlockingQueue<>();
+    public LinkedBlockingQueue<Long> notifications = new LinkedBlockingQueue<>();
 
     private ArrayList<Pair<Long, Lobby>> subscriptions = new ArrayList();
     private LobbyRepository lobbyRepository;
@@ -47,6 +48,10 @@ public class LobbyPollWorker implements Runnable {
         // add the subcription to the queue
         subscriptions.add(subscribed);
         startThread();
+    }
+
+    public void notify(Long id) {
+        notifications.add(id);
     }
 
     // make sure that at least one thread is running
@@ -86,18 +91,15 @@ public class LobbyPollWorker implements Runnable {
     public void run() {
         try {
             while(true) {
+                Long chatId = notifications.take();
                 for (Pair<Long, Lobby> subscription: subscriptions) {
-                    Lobby lobby = getExistingLobby(subscription.x);
-                    Lobby subscribedLobby = subscription.y;
-                    System.out.println(lobby.toString() + subscribedLobby.toString());
-
-                    if (!lobby.toString().equals(subscribedLobby.toString())) {
+                    if (chatId == subscription.x) {
+                        Lobby lobby = getExistingLobby(subscription.x);
                         Pair<Long, Lobby> newData = new Pair(subscription.x, lobby);
                         queue.add(newData);
                         subscription.y = lobby;
                     }
                 }
-                TimeUnit.SECONDS.sleep(1);
             }
         } catch (InterruptedException e) {
             start = true;

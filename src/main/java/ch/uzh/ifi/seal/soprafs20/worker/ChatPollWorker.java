@@ -36,6 +36,7 @@ public class ChatPollWorker implements Runnable {
     private volatile boolean start = true;
 
     public LinkedBlockingQueue<Pair<Long, Chat>> queue = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<Long> notifications = new LinkedBlockingQueue<>();
 
     private ArrayList<Pair<Long, Chat>> subscriptions = new ArrayList();
     private ChatRepository chatRepository;
@@ -58,6 +59,10 @@ public class ChatPollWorker implements Runnable {
         // add the subcription to the queue
         subscriptions.add(subscribed);
         startThread();
+    }
+
+    public void notify(Long id) {
+        notifications.add(id);
     }
 
     // make sure that at least one thread is running
@@ -97,17 +102,15 @@ public class ChatPollWorker implements Runnable {
     public void run() {
         while(true) {
             try {
+                Long chatId = notifications.take();
                 for (Pair<Long, Chat> subscription: subscriptions) {
-                    Chat chat = getExistingChat(subscription.x);
-                    Chat subscribedChat = subscription.y;
-
-                    if (!chat.toString().equals(subscribedChat.toString())) {
+                    if (chatId == subscription.x) {
+                        Chat chat = getExistingChat(subscription.x);
                         Pair<Long, Chat> newData = new Pair(subscription.x, chat);
                         queue.add(newData);
                         subscription.y = chat;
                     }
                 }
-                TimeUnit.SECONDS.sleep(1);
              } catch (InterruptedException e) {
                  throw new ServiceException("Cannot get latest update. ");
              }
