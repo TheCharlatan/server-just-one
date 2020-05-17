@@ -47,7 +47,6 @@ public class GameService {
     private Random rand = new Random();
     private WordCheck wordChecker = new WordCheck();
     Stemmer stemCheck = new Stemmer();
-    private static final String REJECTED = "REJECTED";
 
 
     @Autowired
@@ -231,7 +230,7 @@ public class GameService {
         userAccepted.add(userId);
         game.setCountAccept(userAccepted);
 
-        if(game.getCountAccept().size() >= game.getPlayerIds().size() - 1) {
+        if(game.getCountAccept().size() == game.getPlayerIds().size() - 1) {
             game.setCardStatus(CardStatus.AWAITING_CLUES);
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             List<Long> empty = new ArrayList<>();
@@ -380,7 +379,7 @@ public class GameService {
     }
 
     static boolean allCluesRejected(List<?> templist, int compareSize) {
-        return Collections.frequency(templist, REJECTED) == compareSize;
+        return Collections.frequency(templist, "REJECTED") == compareSize;
     }
 
     /*
@@ -395,7 +394,7 @@ public class GameService {
        /* if(elapsedSeconds>30){
             log.info("before adding the clue"+game.getClues().size());
             List<String> clues = game.getClues();
-            clues.add(REJECTED);
+            clues.add("REJECTED");
             game.setClues(clues);
             log.info("after adding the clue"+game.getClues().size());
             gameRepository.save(game);
@@ -419,15 +418,15 @@ public class GameService {
         List<String> clues = game.getClues();
 
         if(elapsedSeconds>35){
-            clues.add(REJECTED);
+            clues.add("REJECTED");
         }
         else if (!wordChecker.checkEnglishWord(word)) {
                 //Need to add REJECTED to the list in order to check if all the clues have been received or not.
                 //So removing the exception statement.
-                clues.add(REJECTED);
+                clues.add("REJECTED");
         }
         else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex()))) {
-            clues.add(REJECTED);
+            clues.add("REJECTED");
         }
         else {
             clues.add(word);
@@ -453,7 +452,7 @@ public class GameService {
         if (game.getClues().size() >= maxNumClues) {
             game.setGameStatus(GameStatus.AWAITING_GUESS);
             //Setting the score as per user story
-            game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,REJECTED));
+            game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,"REJECTED"));
             //Setting the time stamp to current time stamp when all the clues have been received.
             //User will have than 30 seconds to guess the word.
             game.setTimestamp(java.time.LocalTime.now());
@@ -510,15 +509,17 @@ public class GameService {
         gameRepository.save(game);
         gameRepository.flush();
 
+        User user = getExistingUser(gameDeleteDTO.getUserId());
+        user.setGameId(0);
+
         if(gameDeleteDTO.isBrowserClose()) {
             //logging off user
-            User user = getExistingUser(gameDeleteDTO.getUserId());
             user.setStatus(UserStatus.OFFLINE);
-            userRepository.save(user);
-            userRepository.flush();
             //removing user from lobby
             lobbyService.removePlayerFromLobby(gameDeleteDTO.getLobbyId(),gameDeleteDTO.getUserId(),gameDeleteDTO.isBrowserClose());
         }
+        userRepository.save(user);
+        userRepository.flush();
 
         return game;
 
