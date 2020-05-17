@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserUpdateDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,46 +65,8 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getAllUsers(){
-        User user1 = new User();
-        user1.setUsername("test1");
-        user1.setPassword("12345");
-
-        User user2 = new User();
-        user2.setUsername("test2");
-        user2.setPassword("12345");
-
-        User user3 = new User();
-        user3.setUsername("test3");
-        user3.setPassword("12345");
-
-        User user4 = new User();
-        user4.setUsername("test4");
-        user4.setPassword("12345");
-
-        User user5 = new User();
-        user5.setUsername("test5");
-        user5.setPassword("12345");
-
-        userService.createUser(user1);
-        userService.createUser(user2);
-        userService.createUser(user3);
-        userService.createUser(user4);
-        userService.createUser(user5);
-
-        List<User> testUserList = new ArrayList<>();
-        testUserList.add(user1);
-        testUserList.add(user2);
-        testUserList.add(user3);
-        testUserList.add(user4);
-        testUserList.add(user5);
-        testUserList.add(testUser);
-
-        Mockito.when(userRepository.findAll()).thenReturn(testUserList);
-
-        List<User> userList = userService.getUsers();
-        assertEquals(6, userList.size());
-
+    public void getUserDoesNotExists_exception(){
+        assertThrows(NotFoundException.class, ()->userService.getUser(20L));
     }
 
     @Test
