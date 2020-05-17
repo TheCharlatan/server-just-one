@@ -74,6 +74,9 @@ public class UserService {
         if (!userByUsername.getPassword().equals(password)) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
         }
+        userByUsername.setStatus(UserStatus.ONLINE);
+        userRepository.save(userByUsername);
+        userRepository.flush();
         return userByUsername;
     }
 

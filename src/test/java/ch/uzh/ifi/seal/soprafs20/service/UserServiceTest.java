@@ -109,6 +109,7 @@ public class UserServiceTest {
         User user = userService.login("testUsername", "testPassword");
 
         assertEquals("supersecrettokenvalue", user.getToken());
+        assertEquals(UserStatus.ONLINE, user.getStatus());
     }
 
     @Test
