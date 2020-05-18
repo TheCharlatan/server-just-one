@@ -406,10 +406,6 @@ public class GameService {
         }
         game.setClues(clues);
 
-        if (clues.size() > game.getPlayerIds().size()-1) {
-            throw new ServiceException("Too many clues submitted already");
-        }
-
         //game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
@@ -419,7 +415,12 @@ public class GameService {
         // create a special case rules for 3 players
         int maxNumClues = game.getPlayerIds().size() - 1;
         if (game.getPlayerIds().size() == 3) {
-            maxNumClues = 2 * game.getPlayerIds().size() - 1;
+            // two clues for two challenging and one guessing player
+            maxNumClues = 4;
+        }
+
+        if (clues.size() > maxNumClues) {
+            throw new ServiceException("Too many clues submitted already");
         }
 
         if (game.getClues().size() >= maxNumClues) {
