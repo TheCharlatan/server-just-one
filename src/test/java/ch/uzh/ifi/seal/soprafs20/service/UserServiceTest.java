@@ -136,6 +136,7 @@ public class UserServiceTest {
         User user = userService.login("testUsername", "testPassword");
 
         assertEquals("supersecrettokenvalue", user.getToken());
+        assertEquals(UserStatus.ONLINE, user.getStatus());
     }
 
     @Test
@@ -242,21 +243,19 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
         userUpdateDTO.setName("updateName");
-        userUpdateDTO.setUsername("updateUsername");
         userUpdateDTO.setCountry("updateCountry");
         userUpdateDTO.setGender('f');
         Date date = new Date();
         userUpdateDTO.setBirthDay(date);
+        userUpdateDTO.setImage("lion");
 
         userService.updateUser(1L, userUpdateDTO);
 
-        assertEquals(testUser.getUsername(), userUpdateDTO.getUsername());
         assertEquals(testUser.getName(), userUpdateDTO.getName());
         assertEquals(testUser.getCountry(), userUpdateDTO.getCountry());
         assertEquals(testUser.getGender(), userUpdateDTO.getGender());
         assertEquals(testUser.getBirthDay(), userUpdateDTO.getBirthDay());
-
-
+        assertEquals(testUser.getImage(), userUpdateDTO.getImage());
     }
 
 }

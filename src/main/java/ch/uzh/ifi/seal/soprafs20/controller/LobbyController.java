@@ -58,27 +58,6 @@ public class LobbyController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
-    @PostMapping("/lobbypoll/{lobbyId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void subscribe(@PathVariable Long lobbyId){
-        lobbyService.subscribe(lobbyId);
-    }
-
-    @DeleteMapping("/lobbypoll/{lobbyId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void unsubscribe(@PathVariable Long lobbyId){
-        lobbyService.unsubscribe(lobbyId);
-    }
-
-    @GetMapping("/lobbypoll/{lobbyId}")
-    @ResponseStatus(HttpStatus.OK)
-    public DeferredResult<LobbyGetDTO> poll(@PathVariable Long lobbyId){
-        // create deferred result that times out after 60 seconds
-        final DeferredResult<LobbyGetDTO> finalResult  = new DeferredResult<>(60000l);
-        lobbyService.pollGetUpdate(finalResult, lobbyId);
-        return finalResult;
-    }
-
     @PutMapping("/lobby/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

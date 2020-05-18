@@ -36,6 +36,7 @@ public class ChatPollWorker implements Runnable {
     private volatile boolean start = true;
 
     public LinkedBlockingQueue<Pair<Long, Chat>> queue = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<Long> notifications = new LinkedBlockingQueue<>();
 
     private ArrayList<Pair<Long, Chat>> subscriptions = new ArrayList();
     private ChatRepository chatRepository;
@@ -60,6 +61,10 @@ public class ChatPollWorker implements Runnable {
         startThread();
     }
 
+    public void notify(Long id) {
+        notifications.add(id);
+    }
+
     // make sure that at least one thread is running
     private void startThread() {
         if (start) {
@@ -79,6 +84,7 @@ public class ChatPollWorker implements Runnable {
         while (iter.hasNext()) {
             if (iter.next().x == id) {
                 iter.remove();
+                return;
             }
         }
     }
@@ -86,7 +92,8 @@ public class ChatPollWorker implements Runnable {
     private Chat getExistingChat(long id) {
         Optional<Chat> optionalChat = chatRepository.findById(id);
         if (!optionalChat.isPresent()) {
-            throw new NotFoundException(String.format("Could not find chat with id %d.", id));
+            subscriptions.remove(id);
+            return new Chat();
         }
         return optionalChat.get();
     }
@@ -95,17 +102,17 @@ public class ChatPollWorker implements Runnable {
     public void run() {
         while(true) {
             try {
+                Long chatId = notifications.take();
                 for (Pair<Long, Chat> subscription: subscriptions) {
-                    Chat chat = getExistingChat(subscription.x);
-                    Chat subscribedChat = subscription.y;
-
-                    if (!chat.toString().equals(subscribedChat.toString())) {
+                    if (chatId == subscription.x) {
+                        // for some reason we need to call this twice :( - I hate databases packed into silly frameworks!
+                        Chat chat = getExistingChat(subscription.x);
+                        chat = getExistingChat(subscription.x);
                         Pair<Long, Chat> newData = new Pair(subscription.x, chat);
                         queue.add(newData);
                         subscription.y = chat;
                     }
                 }
-                TimeUnit.SECONDS.sleep(1);
              } catch (InterruptedException e) {
                  throw new ServiceException("Cannot get latest update. ");
              }

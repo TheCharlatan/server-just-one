@@ -32,14 +32,11 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserPollService userPollService;
-
     private final UserRepository userRepository;
 
     @Autowired
     public UserService(@Qualifier("userRepository") UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userPollService = new UserPollService(userRepository);
     }
 
     public List<User> getUsers() {
@@ -83,7 +80,6 @@ public class UserService {
         userByUsername.setStatus(UserStatus.ONLINE);
         userRepository.save(userByUsername);
         userRepository.flush();
-
         return userByUsername;
     }
 
@@ -111,31 +107,6 @@ public class UserService {
             throw new NotFoundException(String.format("Could not find user with id %d.", id));
         }
         return optionalUser.get();
-    }
-
-    // subscription method for a certain user id
-    public void subscribe(Long id) {
-        try {
-            userRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new NotFoundException("Cannot subscribe to a non-existing user");
-        }
-        userPollService.subscribe(id);
-    }
-
-    // unsubscription method for a certain user id
-    public void unsubscribe(Long id) {
-        userPollService.unsubscribe(id);
-    }
-
-    // async, returns once there is a change for the user id
-    public void pollGetUpdate(DeferredResult<UserGetDTO> result, Long id) {
-        try {
-            userRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new NotFoundException("Cannot poll for a non-existing user");
-        }
-        userPollService.pollGetUpdate(result, id);
     }
 
     /**
@@ -172,20 +143,22 @@ public class UserService {
     public UserGetDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO) {
         User user = getExistingUser(userId);
 
-        if (!userUpdateDTO.getName().isEmpty()) {
+        if (userUpdateDTO.getName() != null) {
             user.setName(userUpdateDTO.getName());
-        }
-        if (!userUpdateDTO.getUsername().isEmpty()) {
-            user.setUsername(userUpdateDTO.getUsername());
         }
         if (userUpdateDTO.getGender() == 'f' || userUpdateDTO.getGender() == 'm') {
             user.setGender(userUpdateDTO.getGender());
         }
-        if (!userUpdateDTO.getCountry().isEmpty()) {
+
+        if (userUpdateDTO.getCountry() != null) {
             user.setCountry(userUpdateDTO.getCountry());
         }
+
         if(userUpdateDTO.getBirthDay() != null) {
             user.setBirthDay(userUpdateDTO.getBirthDay());
+        }
+        if(userUpdateDTO.getImage() != null) {
+            user.setImage(userUpdateDTO.getImage());
         }
 
         userRepository.save(user);

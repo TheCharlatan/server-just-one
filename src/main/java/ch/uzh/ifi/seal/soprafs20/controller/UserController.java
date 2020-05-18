@@ -31,27 +31,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/userpoll/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void subscribe(@PathVariable Long userId){
-        userService.subscribe(userId);
-    }
-
-    @DeleteMapping("/userpoll/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void unsubscribe(@PathVariable Long userId){
-        userService.unsubscribe(userId);
-    }
-
-    @GetMapping("/userpoll/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public DeferredResult<UserGetDTO> poll(@PathVariable Long userId){
-        // create deferred result that times out after 60 seconds
-        final DeferredResult<UserGetDTO> finalResult  = new DeferredResult<>(60000l);
-        userService.pollGetUpdate(finalResult, userId);
-        return finalResult;
-    }
-
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
