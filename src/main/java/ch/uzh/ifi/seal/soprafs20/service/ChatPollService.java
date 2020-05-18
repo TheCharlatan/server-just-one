@@ -74,7 +74,7 @@ public class ChatPollService implements Runnable {
                 List<ChatMessageDTO> chatMessages = new ArrayList<>();
                 for (String sMessage: message.y.getChatHistory()) {
                     ChatMessageDTO chatMessage = new ChatMessageDTO();
-                    String splitMessage[] = sMessage.split(":", 2);
+                    String[] splitMessage = sMessage.split(":", 2);
                     if (splitMessage.length == 1) {
                         chatMessage.setMessage(splitMessage[0]);
                     } else {
