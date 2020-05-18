@@ -133,6 +133,16 @@ public class UserControllerTest {
 
     }
 
+
+    @Test
+    public void getScoreForUser() throws Exception{
+        MockHttpServletRequestBuilder getRequest = get("/user/scoreboard")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Auth-Token","supersecrettokenvalue");
+
+        mockMvc.perform(getRequest).andExpect(status().isOk());
+    }
+
     /**
      * Helper Method to convert userPostDTO into a JSON string such that the input can be processed
      * Input will look like this: {"name": "Test User", "username": "testUsername"}

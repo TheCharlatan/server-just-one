@@ -47,6 +47,11 @@ public class LobbyService {
     public Long createLobby(Lobby newLobby){
 
         checkIfLobbyExist(newLobby);
+        try {
+            userRepository.findById(newLobby.getHostPlayerId());
+        } catch (Exception e) {
+            throw new LobbyException(String.format("User with id: %d doesn't exist", newLobby.getHostPlayerId()));
+        }
         newLobby.getPlayerIds().add(newLobby.getHostPlayerId());
 
         newLobby = lobbyRepository.save(newLobby);

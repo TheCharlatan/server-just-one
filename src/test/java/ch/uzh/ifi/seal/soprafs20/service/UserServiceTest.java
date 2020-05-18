@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserUpdateDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,7 @@ public class UserServiceTest {
         testUser.setName("testName");
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
+        testUser.setScore(10);
         testUser.setToken("supersecrettokenvalue");
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
@@ -60,6 +62,11 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         User user =  userService.getUser(1l);
         assertEquals(testUser, user);
+    }
+
+    @Test
+    public void getUserDoesNotExists_exception(){
+        assertThrows(NotFoundException.class, ()->userService.getUser(20L));
     }
 
     @Test
@@ -91,6 +98,26 @@ public class UserServiceTest {
     }
 
     @Test
+    public void createUser_caseInsensitive_duplicateName_throwsException(){
+
+        // given -> a first user has already been created
+        userService.createUser(testUser);
+
+        // when -> setup additional mocks for UserRepository
+        Mockito.when(userRepository.findByName(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setName("testName");
+        testUser2.setUsername("TESTUSERNAME");
+        testUser2.setPassword("testPassword");
+        testUser2.setToken("supersecrettokenvalue");
+
+        assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
+    }
+
+    @Test
     public void createUser_duplicateInputs_throwsException() {
         // given -> a first user has already been created
         userService.createUser(testUser);
@@ -109,6 +136,22 @@ public class UserServiceTest {
         User user = userService.login("testUsername", "testPassword");
 
         assertEquals("supersecrettokenvalue", user.getToken());
+        assertEquals(UserStatus.ONLINE, user.getStatus());
+    }
+
+    @Test
+    public void login_success_caseInsensitive(){
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        User user = userService.login("TESTUSERNAME", "testPassword");
+
+        assertEquals("supersecrettokenvalue", user.getToken());
+    }
+
+    @Test
+    public void online_status_check() {
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        User user = userService.login("testUsername", "testPassword");
+
         assertEquals(UserStatus.ONLINE, user.getStatus());
     }
 
@@ -149,6 +192,53 @@ public class UserServiceTest {
     }
 
     @Test
+    public void userScoreBoard(){
+        User user1 = new User();
+        user1.setUsername("testScore1");
+        user1.setPassword("12345");
+        user1.setScore(20);
+
+        User user2 = new User();
+        user2.setUsername("testScore2");
+        user2.setPassword("12345");
+        user2.setScore(30);
+
+        User user3 = new User();
+        user3.setUsername("testScore3");
+        user3.setPassword("12345");
+        user3.setScore(40);
+
+        User user4 = new User();
+        user4.setUsername("testScor4");
+        user4.setPassword("12345");
+        user4.setScore(50);
+
+        User user5 = new User();
+        user5.setUsername("testScore5");
+        user5.setPassword("12345");
+        user5.setScore(60);
+
+        userService.createUser(user1);
+        userService.createUser(user2);
+        userService.createUser(user3);
+        userService.createUser(user4);
+        userService.createUser(user5);
+
+        List<User> testUser = new ArrayList<>();
+        testUser.add(user1);
+        testUser.add(user2);
+        testUser.add(user3);
+        testUser.add(user4);
+        testUser.add(user5);
+
+        Mockito.when(userRepository.findAll()).thenReturn(testUser);
+
+        List<User> userList = userService.getUserScoreBoard();
+        assertEquals(60, userList.get(0).getScore());
+
+    }
+
+    @Test
     public void updateUser() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
@@ -167,4 +257,5 @@ public class UserServiceTest {
         assertEquals(testUser.getBirthDay(), userUpdateDTO.getBirthDay());
         assertEquals(testUser.getImage(), userUpdateDTO.getImage());
     }
+
 }
