@@ -137,22 +137,21 @@ public class UserService {
     public UserGetDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO) {
         User user = getExistingUser(userId);
 
-        if (!userUpdateDTO.getName().isEmpty()) {
+        if (userUpdateDTO.getName() != null) {
             user.setName(userUpdateDTO.getName());
-        }
-        if (!userUpdateDTO.getUsername().isEmpty()) {
-            user.setUsername(userUpdateDTO.getUsername());
         }
         if (userUpdateDTO.getGender() == 'f' || userUpdateDTO.getGender() == 'm') {
             user.setGender(userUpdateDTO.getGender());
         }
-        if (!userUpdateDTO.getCountry().isEmpty()) {
+
+        if (userUpdateDTO.getCountry() != null) {
             user.setCountry(userUpdateDTO.getCountry());
         }
+
         if(userUpdateDTO.getBirthDay() != null) {
             user.setBirthDay(userUpdateDTO.getBirthDay());
         }
-        if(!userUpdateDTO.getImage().isEmpty()) {
+        if(userUpdateDTO.getImage() != null) {
             user.setImage(userUpdateDTO.getImage());
         }
 
