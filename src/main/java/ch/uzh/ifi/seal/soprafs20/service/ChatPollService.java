@@ -70,23 +70,24 @@ public class ChatPollService implements Runnable {
                     }
                 }
 
+                //construct the message list
+                List<ChatMessageDTO> chatMessages = new ArrayList<>();
+                for (String sMessage: message.y.getChatHistory()) {
+                    ChatMessageDTO chatMessage = new ChatMessageDTO();
+                    String splitMessage[] = sMessage.split(":", 2);
+                    if (splitMessage.length == 1) {
+                        chatMessage.setMessage(splitMessage[0]);
+                    } else {
+                        chatMessage.setUsername(splitMessage[0]);
+                        chatMessage.setMessage(splitMessage[1]);
+                    }
+                    chatMessages.add(chatMessage);
+                }
 
                 for (Pair<Long, DeferredResult<List<ChatMessageDTO>>> request: resultList) {
                     //compare ids
                     if (request.x == message.x) {
                         // set the result
-                        List<ChatMessageDTO> chatMessages = new ArrayList<>();
-                        for (String sMessage: message.y.getChatHistory()) {
-                            ChatMessageDTO chatMessage = new ChatMessageDTO();
-                            String splitMessage[] = sMessage.split(":", 2);
-                            if (splitMessage.length == 1) {
-                                chatMessage.setMessage(splitMessage[0]);
-                            } else {
-                                chatMessage.setUsername(splitMessage[0]);
-                                chatMessage.setMessage(splitMessage[1]);
-                            }
-                            chatMessages.add(chatMessage);
-                        }
                         request.y.setResult(chatMessages);
                     }
                 }
