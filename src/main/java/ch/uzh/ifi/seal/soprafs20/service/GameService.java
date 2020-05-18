@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -363,8 +362,9 @@ public class GameService {
     public long checkTimeForClue(Game game){
         LocalTime clueTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
+       /*
         long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
-       /* if(elapsedSeconds>30){
+        if(elapsedSeconds>30){
             log.info("before adding the clue"+game.getClues().size());
             List<String> clues = game.getClues();
             clues.add("REJECTED");
@@ -374,7 +374,7 @@ public class GameService {
             gameRepository.flush();
             throw new ServiceException("You took more than 30 seconds to enter the valid clue");
         }*/
-        return elapsedSeconds;
+        return Duration.between(clueTime, nowTime).toSeconds();
     }
 
     public void updateUserScore(long playerId, int score){
@@ -406,7 +406,6 @@ public class GameService {
         }
         game.setClues(clues);
 
-        //game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);

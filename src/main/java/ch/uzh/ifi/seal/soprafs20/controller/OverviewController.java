@@ -54,7 +54,7 @@ public class OverviewController {
     @ResponseStatus(HttpStatus.OK)
     public DeferredResult<List<ChatMessageDTO>> poll(@PathVariable Long chatId){
         // create deferred result that times out after 60 seconds
-        final DeferredResult<List<ChatMessageDTO>> finalResult  = new DeferredResult<List<ChatMessageDTO>>(10000l);
+        final DeferredResult<List<ChatMessageDTO>> finalResult  = new DeferredResult<>(10000l);
         chatService.pollGetUpdate(finalResult, chatId);
         return finalResult;
     }

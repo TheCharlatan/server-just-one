@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +108,7 @@ public class LobbyService {
         }
 
         //Changing host when host player leaves the lobby
-        if(lobby.getHostPlayerId() == userId && lobby.getPlayerIds().size() > 0){
+        if(lobby.getHostPlayerId() == userId && !lobby.getPlayerIds().isEmpty()){
             lobby.setHostPlayerId(lobby.getPlayerIds().get(0));
             User newLobbyHost = getExistingUser(lobby.getHostPlayerId());
             newLobbyHost.setLobbyId(id);
@@ -130,7 +129,7 @@ public class LobbyService {
         userRepository.flush();
 
         //Deleting the lobby if all player have left the lobby
-        if(lobby.getPlayerIds().size()==0){
+        if(lobby.getPlayerIds().isEmpty()){
             lobbyRepository.delete(lobby);
             return;
         }

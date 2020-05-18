@@ -3,29 +3,16 @@ package ch.uzh.ifi.seal.soprafs20.worker;
 import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.utils.Pair;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 @Service
 @Transactional
@@ -38,7 +25,7 @@ public class ChatPollWorker implements Runnable {
     public LinkedBlockingQueue<Pair<Long, Chat>> queue = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<Long> notifications = new LinkedBlockingQueue<>();
 
-    private ArrayList<Pair<Long, Chat>> subscriptions = new ArrayList();
+    private ArrayList<Pair<Long, Chat>> subscriptions = new ArrayList<>();
     private ChatRepository chatRepository;
 
     @Autowired
@@ -49,7 +36,7 @@ public class ChatPollWorker implements Runnable {
     // subscribe the resource
     public void subscribe(Long id) {
         // create a new subscription
-        Pair<Long, Chat> subscribed = new Pair(id, getExistingChat(id));
+        Pair<Long, Chat> subscribed = new Pair<>(id, getExistingChat(id));
         // check if we are already subscribed to that chat
         for (Pair<Long, Chat> subscription: subscriptions) {
             if (subscription.x == id) {
@@ -108,7 +95,7 @@ public class ChatPollWorker implements Runnable {
                         // for some reason we need to call this twice :( - I hate databases packed into silly frameworks!
                         Chat chat = getExistingChat(subscription.x);
                         chat = getExistingChat(subscription.x);
-                        Pair<Long, Chat> newData = new Pair(subscription.x, chat);
+                        Pair<Long, Chat> newData = new Pair<>(subscription.x, chat);
                         queue.add(newData);
                         subscription.y = chat;
                     }
