@@ -70,6 +70,7 @@ public class GameServiceTest {
         playerIds.add(1L);
         playerIds.add(2L);
         testGame.setPlayerIds(playerIds);
+        testGame.setActivePlayerId(0L);
 
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);
@@ -508,7 +509,7 @@ public class GameServiceTest {
 
     @Test
     public void gameEntity_toString_success() {
-        assertEquals("Game{id=1, playerIds='[0, 1, 2], round='0, gameStatus='null, words=[], wordIndex='0, lastWordIndex=[], roundScore=0, activePlayerId=null, clues=[], score={}, timestamp='null, wordsGuessedWrong=0, cardStackCount=0, cardGuessedCount=0, cardStatus=null, countAccept=[]}", testGame.toString());
+        assertEquals("Game{id=1, playerIds='[0, 1, 2], round='0, gameStatus='null, words=[], wordIndex='0, lastWordIndex=[], roundScore=0, activePlayerId=0, clues=[], score={}, timestamp='null, wordsGuessedWrong=0, cardStackCount=0, cardGuessedCount=0, cardStatus=null, countAccept=[]}", testGame.toString());
     }
 
 /*
