@@ -72,6 +72,10 @@ public class UserService {
         if (!userByUsername.getPassword().equals(password)) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
         }
+        //If user is already logged in, it is not possible to login again
+        if (userByUsername.getStatus() == UserStatus.ONLINE) {
+            throw new AuthenticationException("User is already logged in.");
+        }
 
         //Setting the user ONLINE
         userByUsername.setStatus(UserStatus.ONLINE);

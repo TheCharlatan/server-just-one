@@ -173,6 +173,13 @@ public class UserServiceTest {
     }
 
     @Test
+    public void login_invalid_alreadyLoggedIn() {
+        testUser.setStatus(UserStatus.ONLINE);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        assertThrows(AuthenticationException.class, () -> userService.login("testUsername", "testPassword"));
+    }
+
+    @Test
 
     public void logout_success() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
