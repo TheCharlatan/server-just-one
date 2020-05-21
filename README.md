@@ -15,8 +15,9 @@ hibernate and a entity based model. The services and controllers are kept as
 modular as possible, there is no monolithic main class or function. There is a
 controller and service for each of the chat, user, lobby and game entities and
 REST endpoints. To facilitate real time state changes on the client side, the
-server also implements long polling capabilities for its entities. This means
-that each of the entities has its separate long polling service and worker.
+server also implements long polling capabilities for its entities. In practice
+the project currently implements it for the chat entity, but the service/worker
+pattern can easily be extended to others.
 
 Take the [user
 entity](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/entity/User.java)
@@ -24,14 +25,18 @@ as an example. Its
 [controller](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/controller/UserController.java)
 exposes the REST endpoint to create, update, delete and poll changes to a user.
 The respective endpoints have their respective [user service
-functions](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/service/UserService.java). To facilitate polling, we additionally have the [user polling service](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/service/UserPollService.java) and a [user polling worker](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/worker/UserPollWorker.java).
+functions](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/service/UserService.java).
+To facilitate polling for the chat, we additionally have the [chat polling
+service](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/service/ChatPollService.java)
+and a [chat polling
+worker](https://github.com/SOPRA-2020/server-just-one/blob/master/src/main/java/ch/uzh/ifi/seal/soprafs20/worker/ChatPollWorker.java).
 
 The polling is implemented with a subscription model. By executing a POST
-request to `/userpoll/{userid}` a consumer is subscribed to the endpoint. The
-consumer can then issue GET requests to `/userpoll/{userid}` to either receive
+request to `/chatpoll/{chatid}` a consumer is subscribed to the endpoint. The
+consumer can then issue GET requests to `/chatpoll/{chatid}` to either receive
 data after a change, or a timeout status code after 60 seconds. To unsubscribe
 from the resource, the consumer can issue a DELETE request to
-`/userpoll/{userid}`.
+`/chatpoll/{chatid}`.
 
 ### Technical Debt
 
@@ -48,6 +53,9 @@ should be changed to use true SQL commands and a one-to-many mapping.
 
 The polling service and worker classes could probably be templated. Currently
 they are hard to test and and have a lot of code overlap between each other.
+Additionally the java servlet seems to have some trouble resolving the
+correct `DeferredResult` sometimes. This needs investigation, since it means
+that some long polling requests are practically dropped.
 
 For a more uplifting list of TODOs, see the [client
 repository](https://github.com/SOPRA-2020/client-just-one).
