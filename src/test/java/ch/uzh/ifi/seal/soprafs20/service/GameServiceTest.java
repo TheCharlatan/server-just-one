@@ -189,10 +189,16 @@ public class GameServiceTest {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setGameStatus(GameStatus.AWAITING_CLUES);
         testGame.setTimestamp(Instant.now().getEpochSecond()-15);
+        List<Long> userAccepted =  new ArrayList<>();
+        userAccepted.add(1L);
+        userAccepted.add(2L);
+        userAccepted.add(3L);
+        testGame.setCountAccept(userAccepted);
         gameService.rejectWord(1L);
 
         assertEquals(GameStatus.AWAITING_INDEX, testGame.getGameStatus());
         assertEquals(CardStatus.USER_REJECTED_WORD, testGame.getCardStatus());
+        assertEquals(0,testGame.getCountAccept().size());
     }
 
     @Test

@@ -191,6 +191,7 @@ public class GameService {
         game.setWordIndex(-1);
         game.setCardStatus(CardStatus.USER_REJECTED_WORD);
         game.setGameStatus(GameStatus.AWAITING_INDEX);
+        game.getCountAccept().clear();
         gameRepository.save(game);
         gameRepository.flush();
     }
