@@ -530,6 +530,19 @@ public class GameServiceTest {
     }
 
     @Test
+    public void clueSameAsMysteryWord() {
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
+        testGame.setWordIndex(0);
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        gameService.submitWord(1L,"break");
+        assert(testGame.getClues().size() >= 1);
+        assertEquals("REJECTED", testGame.getClues().get(0));
+    }
+
+    @Test
     public void acceptAllUniqueClues(){
         testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));

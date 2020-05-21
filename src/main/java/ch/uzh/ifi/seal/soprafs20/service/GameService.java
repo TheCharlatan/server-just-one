@@ -419,6 +419,9 @@ public class GameService {
         else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex())) && !isNumeric(word)) {
             clues.add("REJECTED");
         }
+        else if(word.equalsIgnoreCase(game.getWords().get(game.getWordIndex()))){
+            clues.add("REJECTED");
+        }
         else {
                 clues.add(word);
         }
