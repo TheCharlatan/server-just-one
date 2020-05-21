@@ -45,9 +45,6 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
-        if(newUser.getName()==null || newUser.getName().isBlank()){
-            newUser.setName(newUser.getUsername());
-        }
         newUser.setUsername(newUser.getUsername().toLowerCase());
         checkIfUserExists(newUser);
 
