@@ -12,12 +12,14 @@ import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
+import org.apache.tomcat.util.buf.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.NumberUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Duration;
@@ -364,16 +366,6 @@ public class GameService {
         LocalTime clueTime = game.getTimestamp();
         LocalTime nowTime = java.time.LocalTime.now();
         long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
-       /* if(elapsedSeconds>30){
-            log.info("before adding the clue"+game.getClues().size());
-            List<String> clues = game.getClues();
-            clues.add("REJECTED");
-            game.setClues(clues);
-            log.info("after adding the clue"+game.getClues().size());
-            gameRepository.save(game);
-            gameRepository.flush();
-            throw new ServiceException("You took more than 30 seconds to enter the valid clue");
-        }*/
         return elapsedSeconds;
     }
 
@@ -382,6 +374,33 @@ public class GameService {
         user.setScore(user.getScore()+score);
         userRepository.save(user);
         userRepository.flush();
+    }
+
+    public boolean isNumeric(String str) {
+        try {
+            Long.parseLong(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+    public void checkDuplicateClue(List<String> clueList){
+        List<String> duplicateList = new ArrayList<>();
+
+        List<String> emptyList = new ArrayList<>();
+        for(String tempString: clueList){
+            if(emptyList.contains(tempString)){
+                duplicateList.add(tempString);
+            }
+            else{
+                emptyList.add(tempString);
+            }
+        }
+
+        for(String duplicateString: duplicateList){
+            Collections.replaceAll(clueList,duplicateString,"REJECTED");
+        }
     }
 
     public void submitWord(long id, String word) {
@@ -393,16 +412,16 @@ public class GameService {
         if(elapsedSeconds>35){
             clues.add("REJECTED");
         }
-        else if (!wordChecker.checkEnglishWord(word)) {
+        else if (!wordChecker.checkEnglishWord(word) && !isNumeric(word) ) {
                 //Need to add REJECTED to the list in order to check if all the clues have been received or not.
                 //So removing the exception statement.
                 clues.add("REJECTED");
         }
-        else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex()))) {
+        else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex())) && !isNumeric(word)) {
             clues.add("REJECTED");
         }
         else {
-            clues.add(word);
+                clues.add(word);
         }
         game.setClues(clues);
 
@@ -410,7 +429,7 @@ public class GameService {
             throw new ServiceException("Too many clues submitted already");
         }
 
-        //game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
+        game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);
@@ -423,25 +442,31 @@ public class GameService {
         }
 
         if (game.getClues().size() >= maxNumClues) {
-            game.setGameStatus(GameStatus.AWAITING_GUESS);
-            //Setting the score as per user story
-            game.setRoundScore(game.getRoundScore()-Collections.frequency(clues,"REJECTED"));
-            //Setting the time stamp to current time stamp when all the clues have been received.
-            //User will have than 30 seconds to guess the word.
-            game.setTimestamp(java.time.LocalTime.now());
-            game.setCardStatus(CardStatus.ALL_CLUES_RECEIVED);
-        }
 
-        /*
-        Checking if all the entered clue were invalid.
-        If found true, the card will be removed and the game status will
-        change to Awaiting Index in order to get new word.
-         */
-        if(allCluesRejected(clues, maxNumClues)) {
-            game.setCardStatus(CardStatus.NO_VALID_CLUE_ENTERED);
-            game.setWordIndex(-1);
-            game.setGameStatus(GameStatus.AWAITING_INDEX);
-            game.getClues().clear();
+            //Checking if duplicate clues were entered.
+            checkDuplicateClue(game.getClues());
+
+            /*
+            Checking if all the entered clue were invalid.
+            If found true, the card will be removed and the game status will
+            change to Awaiting Index in order to get new word.
+             */
+            if(allCluesRejected(clues, maxNumClues)) {
+                game.setCardStatus(CardStatus.NO_VALID_CLUE_ENTERED);
+                game.setWordIndex(-1);
+                game.setRoundScore(0);
+                game.setGameStatus(GameStatus.AWAITING_INDEX);
+                game.getClues().clear();
+            }
+            else {
+                game.setGameStatus(GameStatus.AWAITING_GUESS);
+                //Setting the score as per user story
+                game.setRoundScore(game.getRoundScore() - Collections.frequency(clues, "REJECTED"));
+                //Setting the time stamp to current time stamp when all the clues have been received.
+                //User will have than 30 seconds to guess the word.
+                game.setTimestamp(java.time.LocalTime.now());
+                game.setCardStatus(CardStatus.ALL_CLUES_RECEIVED);
+            }
         }
 
         gameRepository.save(game);

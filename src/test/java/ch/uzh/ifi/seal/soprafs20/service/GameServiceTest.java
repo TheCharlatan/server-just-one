@@ -13,6 +13,7 @@ import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameDeleteDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameStat;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.TransactionScoped;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -373,6 +375,64 @@ public class GameServiceTest {
     }
 
     @Test
+    public void allClueRejected_CheckTrue(){
+        List<String> tempList = new ArrayList<>();
+        tempList.add("REJECTED");
+        tempList.add("REJECTED");
+        tempList.add("REJECTED");
+        tempList.add("REJECTED");
+
+        int compareSize = 4;
+        assertTrue(gameService.allCluesRejected(tempList,compareSize));
+    }
+
+    @Test
+    public void allClueRejected_CheckFalse(){
+        List<String> tempList = new ArrayList<>();
+        tempList.add("REJECTED");
+        tempList.add("REJECTED");
+        tempList.add("REJECTED");
+        tempList.add("123");
+
+        int compareSize = 4;
+        assertFalse(gameService.allCluesRejected(tempList,compareSize));
+    }
+
+    @Test
+    public void updateUserScoreTest(){
+        User newUser = new User();
+        newUser.setUsername("tester");
+        newUser.setPassword("tester");
+        newUser.setId(10L);
+        newUser.setScore(20);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(newUser));
+        gameService.updateUserScore(10L,20);
+        assertEquals(40,newUser.getScore());
+    }
+
+    @Test
+    public void checkIsNumericTrue(){
+        assertTrue(gameService.isNumeric("1234"));
+    }
+
+    @Test
+    public void checkIsNumericFalse(){
+        assertFalse(gameService.isNumeric("teststring"));
+    }
+
+    @Test
+    public void removeDuplicateClueTest(){
+        List<String> checkList = new ArrayList<>();
+        checkList.add("Town");
+        checkList.add("City");
+        checkList.add("City");
+        checkList.add("Place");
+
+        gameService.checkDuplicateClue(checkList);
+        assertEquals("REJECTED",checkList.get(1));
+    }
+
+    @Test
     public void acceptWordSuccess() {
         testGame.setGameStatus(GameStatus.AWAITING_INDEX);
         ArrayList<Long> testAccept = new ArrayList<>();
@@ -407,11 +467,92 @@ public class GameServiceTest {
         }
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
-        gameService.submitWord(1L,"word");
+        gameService.submitWord(1L,"sword");
         assert(testGame.getClues().size() >= 2);
+
+        assertEquals("sword", testGame.getClues().get(1));
+    }
+
+    @Test
+    public void numericClueAccepted(){
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(false);
+        Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(false);
+        testGame.setWordIndex(0);
+        testGame.setWords(Arrays.asList("bond","making","split","test","word"));
+        gameService.submitWord(1L,"007");
+        assert(testGame.getClues().size() >= 1);
+        for (String clue: testGame.getClues()) {
+            assertEquals("007", clue);
+        }
+    }
+
+    @Test
+    public void rejectDuplicateClue(){
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
+        ArrayList<Long> playerIds = new ArrayList<Long>();
+        playerIds.add(0L);
+        playerIds.add(1L);
+        playerIds.add(2L);
+        playerIds.add(3L);
+        testGame.setPlayerIds(playerIds);
+        testGame.setWordIndex(0);
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        gameService.submitWord(1L,"word");
+        assert(testGame.getClues().size() >= 1);
         for (String clue: testGame.getClues()) {
             assertEquals("word", clue);
         }
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"word");
+        assert(testGame.getClues().size() >= 2);
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"sword");
+        assert(testGame.getClues().size() >= 3);
+
+        assertEquals("REJECTED", testGame.getClues().get(0));
+        assertEquals("sword",testGame.getClues().get(2));
+    }
+
+    @Test
+    public void acceptAllUniqueClues(){
+        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
+        ArrayList<Long> playerIds = new ArrayList<Long>();
+        playerIds.add(0L);
+        playerIds.add(1L);
+        playerIds.add(2L);
+        playerIds.add(3L);
+        testGame.setPlayerIds(playerIds);
+        testGame.setWordIndex(0);
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        gameService.submitWord(1L,"word");
+        assert(testGame.getClues().size() >= 1);
+        for (String clue: testGame.getClues()) {
+            assertEquals("word", clue);
+        }
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"words");
+        assert(testGame.getClues().size() >= 2);
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+        Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
+        gameService.submitWord(1L,"sword");
+        assert(testGame.getClues().size() >= 3);
+
+        assertEquals("word", testGame.getClues().get(0));
+        assertEquals("words",testGame.getClues().get(1));
+        assertEquals("sword",testGame.getClues().get(2));
     }
 
 
@@ -484,6 +625,26 @@ public class GameServiceTest {
 
         gameService.submitWord(1L,"breaking");
         assertEquals(CardStatus.NO_VALID_CLUE_ENTERED, testGame.getCardStatus());
+    }
+
+    @Test
+    public void getStatAfterGameTest(){
+        Map<Long,Integer> scoreMap = new HashMap<>();
+
+        scoreMap.put(1L,30);
+        scoreMap.put(2L,50);
+        scoreMap.put(3L,10);
+        scoreMap.put(4L,00);
+
+        testGame.setScore(scoreMap);
+        testGame.setWordsGuessedCorrect(4);
+
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
+
+        GameStat gameStat = gameService.getFinalStats(1L);
+
+        assertEquals(130, gameStat.getScore());
+
     }
 
     @Test
