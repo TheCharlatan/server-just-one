@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,6 +63,20 @@ public class OverviewControllerTest {
 
         mockMvc.perform(getRequest)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void subscribeChat() throws Exception {
+        MockHttpServletRequestBuilder postRequest = post("/chatpoll/0");
+        mockMvc.perform(postRequest)
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void unsubscribeChat() throws Exception {
+        MockHttpServletRequestBuilder deleteRequest = delete("/chatpoll/0");
+        mockMvc.perform(deleteRequest)
+            .andExpect(status().isOk());
     }
 
     /**

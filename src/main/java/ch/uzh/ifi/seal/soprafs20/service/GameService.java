@@ -302,6 +302,14 @@ public class GameService {
         game.setGameStatus(GameStatus.AWAITING_INDEX);
         game.setCardStatus(CardStatus.AWAITING_INDEX);
 
+        //Updating score of the player and also storing the score of previous rounds
+        int scoreForRound = game.getRoundScore()/10;
+
+        updateUserScore(game.getActivePlayerId(), scoreForRound);
+
+        //Adding the score of this round to scoreboard
+        game.getScore().put(game.getActivePlayerId(),scoreForRound);
+
         // select the next player
         List<Long> activePlayerId = game.getPlayerIds();
         int activePlayerIndex = (activePlayerId.indexOf(game.getActivePlayerId()) + 1 ) % activePlayerId.size();
@@ -316,15 +324,6 @@ public class GameService {
 
         //reset lastWordList
         game.getLastWordIndex().clear();
-
-        //Updating score of the player and also storing the score of previous rounds
-        int scoreForRound = game.getRoundScore()/10;
-
-        updateUserScore(game.getActivePlayerId(), scoreForRound);
-
-        //Adding the score of this round to scoreboard
-        game.getScore().put(game.getActivePlayerId(),scoreForRound);
-
 
         //reset roundend score
         game.setRoundScore(0);

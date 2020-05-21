@@ -86,7 +86,7 @@ public class ChatPollService implements Runnable {
 
                 for (Pair<Long, DeferredResult<List<ChatMessageDTO>>> request: resultList) {
                     //compare ids
-                    if (request.x == message.x) {
+                    if (request.x.equals(message.x)) {
                         // set the result
                         request.y.setResult(chatMessages);
                     }

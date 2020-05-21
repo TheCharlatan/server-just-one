@@ -173,6 +173,13 @@ public class UserServiceTest {
     }
 
     @Test
+    public void login_invalid_alreadyLoggedIn() {
+        testUser.setStatus(UserStatus.ONLINE);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        assertThrows(AuthenticationException.class, () -> userService.login("testUsername", "testPassword"));
+    }
+
+    @Test
 
     public void logout_success() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
@@ -262,5 +269,12 @@ public class UserServiceTest {
         assertEquals(testUser.getBirthDay(), userUpdateDTO.getBirthDay());
         assertEquals(testUser.getImage(), userUpdateDTO.getImage());
     }
+
+    @Test
+    public void userEntity_toString_success() {
+        testUser.setBirthDay(null);
+        assertEquals("User{id=1, name='testName', username='testUsername', password='testPassword', token='supersecrettokenvalue', status=null, invitations=[], rank=0, score=10, gender=f, country='testCountry', birthDay=null, creationDate=null, gameId=0, lobbyId=0}", testUser.toString());
+    }
+
 
 }

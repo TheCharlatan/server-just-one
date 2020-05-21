@@ -106,4 +106,9 @@ public class ChatServiceTest {
         chatMessage.setMessage("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         assertThrows(ServiceException.class, ()->chatService.addChatMessage(1l, chatMessage));
     }
+
+    @Test
+    public void chatEntity_toString_success() {
+        assertEquals("Chat{id=1, chatHistory='[Hi!]}", testChat.toString());
+    }
 }

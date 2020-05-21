@@ -45,9 +45,6 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
-        if(newUser.getName()==null || newUser.getName().isBlank()){
-            newUser.setName(newUser.getUsername());
-        }
         newUser.setUsername(newUser.getUsername().toLowerCase());
         checkIfUserExists(newUser);
         newUser.setLobbyId(-1);
@@ -71,6 +68,10 @@ public class UserService {
         }
         if (!userByUsername.getPassword().equals(password)) {
             throw new AuthenticationException("Invalid login credentials, make sure that username and password are correct.");
+        }
+        //If user is already logged in, it is not possible to login again
+        if (userByUsername.getStatus() == UserStatus.ONLINE) {
+            throw new AuthenticationException("User is already logged in.");
         }
 
         //Setting the user ONLINE
