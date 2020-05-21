@@ -43,7 +43,7 @@ public class Chat implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Chat{" +
                 "id=" + id +
                 ", chatHistory='" + chatHistory +
                 '}';
