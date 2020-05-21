@@ -39,7 +39,7 @@ public class ChatPollWorker implements Runnable {
         Pair<Long, Chat> subscribed = new Pair<>(id, getExistingChat(id));
         // check if we are already subscribed to that chat
         for (Pair<Long, Chat> subscription: subscriptions) {
-            if (subscription.x == id) {
+            if (subscription.x.equals(id)) {
                 return;
             }
         }
@@ -69,7 +69,7 @@ public class ChatPollWorker implements Runnable {
     public void unsubscribe(Long id) {
         Iterator<Pair<Long, Chat>> iter = subscriptions.iterator();
         while (iter.hasNext()) {
-            if (iter.next().x == id) {
+            if (iter.next().x.equals(id)) {
                 iter.remove();
                 return;
             }
@@ -91,7 +91,7 @@ public class ChatPollWorker implements Runnable {
             try {
                 Long chatId = notifications.take();
                 for (Pair<Long, Chat> subscription: subscriptions) {
-                    if (chatId == subscription.x) {
+                    if (chatId.equals(subscription.x)) {
                         // for some reason we need to call this twice :( - I hate databases packed into silly frameworks!
                         Chat chat = getExistingChat(subscription.x);
                         chat = getExistingChat(subscription.x);

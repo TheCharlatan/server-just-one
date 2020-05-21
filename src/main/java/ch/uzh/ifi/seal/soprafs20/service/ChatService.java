@@ -79,9 +79,8 @@ public class ChatService {
 
     // subscription method for a certain chat id
     public void subscribe(Long id) {
-        try {
-            chatRepository.findById(id).get();
-        } catch (Exception e) {
+        Optional<Chat> chat = chatRepository.findById(id);
+        if (!chat.isPresent()) {
             throw new NotFoundException("Cannot subscribe to a non-existing chat");
         }
         chatPollService.subscribe(id);
@@ -94,10 +93,9 @@ public class ChatService {
 
     // async, returns once there is a change for the chat id
     public void pollGetUpdate(DeferredResult<List<ChatMessageDTO>> result, Long id) {
-        try {
-            chatRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new NotFoundException("Cannot poll for a non-existing chat");
+        Optional<Chat> chat = chatRepository.findById(id);
+        if (!chat.isPresent()) {
+            throw new NotFoundException("Cannot subscribe to a non-existing chat");
         }
         chatPollService.pollGetUpdate(result, id);
     }

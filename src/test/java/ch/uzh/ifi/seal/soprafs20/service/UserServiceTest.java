@@ -270,4 +270,11 @@ public class UserServiceTest {
         assertEquals(testUser.getImage(), userUpdateDTO.getImage());
     }
 
+    @Test
+    public void userEntity_toString_success() {
+        testUser.setBirthDay(null);
+        assertEquals("User{id=1, name='testName', username='testUsername', password='testPassword', token='supersecrettokenvalue', status=null, invitations=[], rank=0, score=10, gender=f, country='testCountry', birthDay=null, creationDate=null, gameId=0, lobbyId=0}", testUser.toString());
+    }
+
+
 }

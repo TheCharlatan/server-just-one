@@ -33,9 +33,6 @@ public class Lobby implements Serializable {
     private List<Long> playerIds = new ArrayList<>();
 
     @Column
-    private Long chatId;
-
-    @Column
     private Long gameId;
 
     @Column
@@ -48,7 +45,6 @@ public class Lobby implements Serializable {
                 ", name='" + name + '\'' +
                 ", hostPlayerId=" + hostPlayerId +
                 ", playerIds=" + playerIds +
-                ", chatId=" + chatId +
                 ", gameId=" + gameId +
                 ", status=" + status +
                 '}';
@@ -92,14 +88,6 @@ public class Lobby implements Serializable {
 
     public void setPlayerIds(List<Long> playerIds) {
         this.playerIds = playerIds;
-    }
-
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
     }
 
     public Long getGameId() {

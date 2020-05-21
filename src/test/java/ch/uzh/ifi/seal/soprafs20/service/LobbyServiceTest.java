@@ -299,4 +299,9 @@ public class LobbyServiceTest {
         assertNotEquals(1l,lobbyTest.getHostPlayerId());
     }
 
+    @Test
+    public void lobbyEntity_toString_success() {
+        assertEquals("Lobby{id=1, name='testLobby', hostPlayerId=1, playerIds=[], gameId=null, status=0}", lobbyTest.toString());
+    }
+
 }
