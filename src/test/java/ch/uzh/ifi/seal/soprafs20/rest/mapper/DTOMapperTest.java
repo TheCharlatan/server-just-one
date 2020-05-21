@@ -17,6 +17,8 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyGetDTO;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.ArrayList;
 import java.time.temporal.ChronoUnit;
@@ -90,7 +92,7 @@ public class DTOMapperTest {
 		game.setGameStatus(GameStatus.AWAITING_INDEX);
 		game.setRoundScore(0);
 		game.setActivePlayerId(0l);
-		game.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+		game.setTimestamp(Instant.now().getEpochSecond()-35);
 		game.setCardStatus(CardStatus.AWAITING_INDEX);
 		game.setWordIndex(0);
 		game.setWords(new ArrayList<String>());

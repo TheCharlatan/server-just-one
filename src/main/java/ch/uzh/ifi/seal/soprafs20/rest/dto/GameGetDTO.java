@@ -17,7 +17,7 @@ public class GameGetDTO {
     private int score;
     private Long activePlayerId;
     private List<String> clues;
-    private LocalTime timestamp;
+    private long timestamp;
     private int wordsGuessedCorrect;
     private int wordsGuessedWrong;
     private int cardStackCount;
@@ -103,14 +103,13 @@ public class GameGetDTO {
         this.clues = clues;
     }
 
-    public LocalTime getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalTime timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
-
 
     public CardStatus getCardStatus() {
         return cardStatus;

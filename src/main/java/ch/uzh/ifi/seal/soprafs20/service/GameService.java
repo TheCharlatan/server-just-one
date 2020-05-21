@@ -23,6 +23,7 @@ import org.springframework.util.NumberUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.*;
 import java.io.BufferedReader;
@@ -155,7 +156,7 @@ public class GameService {
         generateIndex = 5*(2-1)-1+3 = 7
          */
         game.setWordIndex(generateNewIndex);
-        game.setTimestamp(java.time.LocalTime.now());
+        game.setTimestamp(Instant.now().getEpochSecond());
         /*
         We need to empty the previous clues in case user is choosing the new word after rejection.
          */
@@ -176,9 +177,9 @@ public class GameService {
     public void rejectWord(long id){
         Game game = getExistingGame(id);
 
-        LocalTime clueTime = game.getTimestamp();
-        LocalTime nowTime = java.time.LocalTime.now();
-        long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
+        long clueTime = game.getTimestamp();
+        long nowTime = Instant.now().getEpochSecond();
+        long elapsedSeconds = nowTime-clueTime;
         if(elapsedSeconds>30){
             throw new ServiceException("Cannot reject word after 30 seconds");
         }
@@ -212,7 +213,7 @@ public class GameService {
             game.setCountAccept(empty);
 
             //Time when user accept the word and from this time active player will have 30 seconds to guess the word
-            game.setTimestamp(java.time.LocalTime.now());
+            game.setTimestamp(Instant.now().getEpochSecond());
         }
 
         gameRepository.save(game);
@@ -244,9 +245,9 @@ public class GameService {
 
         // check if guess took too long
         GamePutDTO returnedDTO = new GamePutDTO();
-        LocalTime guessTime = game.getTimestamp();
-        LocalTime nowTime = java.time.LocalTime.now();
-        long elapsedSeconds = Duration.between(guessTime, nowTime).toSeconds();
+        long guessTime = game.getTimestamp();
+        long nowTime = Instant.now().getEpochSecond();
+        long elapsedSeconds = nowTime-guessTime;
         if(elapsedSeconds>30){
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
             returnedDTO.setGuessCorrect("timeout");
@@ -363,9 +364,9 @@ public class GameService {
     "REJECTED" will be populated into the list.
      */
     public long checkTimeForClue(Game game){
-        LocalTime clueTime = game.getTimestamp();
-        LocalTime nowTime = java.time.LocalTime.now();
-        long elapsedSeconds = Duration.between(clueTime, nowTime).toSeconds();
+        long clueTime = game.getTimestamp();
+        long nowTime = Instant.now().getEpochSecond();
+        long elapsedSeconds = nowTime-clueTime;
         return elapsedSeconds;
     }
 
@@ -464,7 +465,7 @@ public class GameService {
                 game.setRoundScore(game.getRoundScore() - Collections.frequency(clues, "REJECTED"));
                 //Setting the time stamp to current time stamp when all the clues have been received.
                 //User will have than 30 seconds to guess the word.
-                game.setTimestamp(java.time.LocalTime.now());
+                game.setTimestamp(Instant.now().getEpochSecond());
                 game.setCardStatus(CardStatus.ALL_CLUES_RECEIVED);
             }
         }

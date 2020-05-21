@@ -25,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.TransactionScoped;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -157,7 +158,7 @@ public class GameServiceTest {
     @Test
     public void rejectWordTestTimeFailure() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
-        testGame.setTimestamp(java.time.LocalTime.now().minus(35, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-35);
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
     }
 
@@ -168,7 +169,7 @@ public class GameServiceTest {
         testGame.getLastWordIndex().add(2);
         testGame.getLastWordIndex().add(3);
         testGame.getLastWordIndex().add(4);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
     }
 
@@ -179,7 +180,7 @@ public class GameServiceTest {
         testGame.getLastWordIndex().add(2);
         testGame.getLastWordIndex().add(3);
         testGame.setGameStatus(GameStatus.AWAITING_GUESS);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         assertThrows(ServiceException.class, ()->gameService.rejectWord(1L));
     }
 
@@ -187,7 +188,7 @@ public class GameServiceTest {
     public void rejectWordSuccess() {
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         testGame.setGameStatus(GameStatus.AWAITING_CLUES);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         gameService.rejectWord(1L);
 
         assertEquals(GameStatus.AWAITING_INDEX, testGame.getGameStatus());
@@ -229,12 +230,12 @@ public class GameServiceTest {
         words.add("Diamond");
         words.add("Rose");
         testGame.setWords(words);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(30, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-30);
         testGame.setWordIndex(1);
         testGame.setCardStackCount(2);
         testGame.setWordsGuessedCorrect(3);
         testGame.setCardGuessedCount(4);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex()));
         gamePutDTO.setWordIndex(testGame.getWordIndex());
 
@@ -267,7 +268,7 @@ public class GameServiceTest {
         testGame.setCardStackCount(2);
         testGame.setWordsGuessedWrong(3);
         testGame.setCardGuessedCount(4);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
 
         //Put a wrong guess
         gamePutDTO.setGuess(testGame.getWords().get(testGame.getWordIndex() + 1));
@@ -299,7 +300,7 @@ public class GameServiceTest {
         testGame.setWords(words);
         testGame.setWordIndex(1);
         testGame.setCardStackCount(2);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         //Put a skip guess
         gamePutDTO.setGuess("SKIP");
         gamePutDTO.setWordIndex(testGame.getWordIndex());
@@ -328,7 +329,7 @@ public class GameServiceTest {
         testGame.setCardStackCount(2);
         testGame.setWordsGuessedWrong(3);
         testGame.setCardGuessedCount(4);
-        testGame.setTimestamp(java.time.LocalTime.now().minus(31, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-31);
         GamePutDTO gamePutDTO = new GamePutDTO();
         gamePutDTO.setGuess("test");
         gamePutDTO.setWordIndex(testGame.getWordIndex());
@@ -454,7 +455,7 @@ public class GameServiceTest {
 
     @Test
     public void clueAccepted() {
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
         Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
@@ -475,7 +476,7 @@ public class GameServiceTest {
 
     @Test
     public void numericClueAccepted(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(false);
         Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(false);
@@ -490,7 +491,7 @@ public class GameServiceTest {
 
     @Test
     public void rejectDuplicateClue(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
         Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
@@ -523,7 +524,7 @@ public class GameServiceTest {
 
     @Test
     public void acceptAllUniqueClues(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
         Mockito.when(stemmer.checkStemMatch(Mockito.any(),Mockito.any())).thenReturn(true);
@@ -558,7 +559,7 @@ public class GameServiceTest {
 
     @Test
     public void timeForSubmitClueException(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(40, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-40);
         ArrayList<String> clues =  new ArrayList<>();
         clues.add("REJECTED");
         clues.add("REJECTED");
@@ -584,7 +585,7 @@ public class GameServiceTest {
 
     @Test
     public void englishWordCheckInvalid(){
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         ArrayList<String> clues =  new ArrayList<>();
         clues.add("REJECTED");
         clues.add("REJECTED");
@@ -607,7 +608,7 @@ public class GameServiceTest {
     @Test
     public void stemCheckInvalid(){
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
-        testGame.setTimestamp(java.time.LocalTime.now().minus(15, ChronoUnit.SECONDS));
+        testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         testGame.setWords(Arrays.asList("break","making","split","test","word"));
         testGame.setWordIndex(0);
         ArrayList<String> clues =  new ArrayList<>();
