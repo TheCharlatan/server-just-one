@@ -12,15 +12,13 @@ import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.Stemmer;
 import ch.uzh.ifi.seal.soprafs20.wordcheck.WordCheck;
-import org.apache.tomcat.util.buf.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.NumberUtils;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -439,7 +437,12 @@ public class GameService {
         // create a special case rules for 3 players
         int maxNumClues = game.getPlayerIds().size() - 1;
         if (game.getPlayerIds().size() == 3) {
-            maxNumClues = 2 * game.getPlayerIds().size() - 1;
+            // two clues for two challenging and one guessing player
+            maxNumClues = 4;
+        }
+
+        if (clues.size() > maxNumClues) {
+            throw new ServiceException("Too many clues submitted already");
         }
 
         if (game.getClues().size() >= maxNumClues) {

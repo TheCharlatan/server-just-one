@@ -54,7 +54,7 @@ public class ChatService {
         if (chatQueue.size() > 100) {
             chatQueue.remove();
         }
-        ArrayList<String> chatList = new ArrayList(chatQueue);
+        ArrayList<String> chatList = new ArrayList<>(chatQueue);
         Collections.reverse(chatList);
         chat.setChatHistory(chatList);
         saveChat(chat);
@@ -65,7 +65,7 @@ public class ChatService {
         ArrayList<ChatMessageDTO> chatHistory = new ArrayList<>();
         for (String message: chat.getChatHistory()) {
             ChatMessageDTO chatMessage = new ChatMessageDTO();
-            String splitMessage[] = message.split(":", 2);
+            String[] splitMessage = message.split(":", 2);
             if (splitMessage.length == 1) {
                 chatMessage.setMessage(splitMessage[0]);
             } else {

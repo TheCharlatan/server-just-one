@@ -8,7 +8,7 @@ public class UserPostDTO {
     private String name;
     private String  password;
     private char gender;
-    private Date birthday;
+    private Date birthDay;
     private String country;
     private String image;
 
@@ -44,12 +44,12 @@ public class UserPostDTO {
         this.gender = gender;
     }
 
-    public Date getBirthday() {
-        return birthday;
+    public Date getBirthDay() {
+        return birthDay;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setBirthDay(Date birthDay) {
+        this.birthDay = birthDay;
     }
 
     public String getCountry() {

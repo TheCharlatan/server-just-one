@@ -42,6 +42,9 @@ public class UserServiceTest {
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
         testUser.setScore(10);
+        testUser.setBirthDay(new Date());
+        testUser.setCountry("testCountry");
+        testUser.setGender('f');
         testUser.setToken("supersecrettokenvalue");
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
@@ -60,7 +63,7 @@ public class UserServiceTest {
     @Test
     public void getUser_success() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
-        User user =  userService.getUser(1l);
+        User user =  userService.getUser(1L);
         assertEquals(testUser, user);
     }
 
@@ -80,6 +83,9 @@ public class UserServiceTest {
         assertEquals(testUser.getId(), createdUser.getId());
         assertEquals(testUser.getName(), createdUser.getName());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
+        assertEquals(testUser.getBirthDay(), createdUser.getBirthDay());
+        assertEquals(testUser.getGender(), createdUser.getGender());
+        assertEquals(testUser.getCountry(), createdUser.getCountry());
         assertNotNull(createdUser.getToken());
         assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
     }
@@ -185,9 +191,9 @@ public class UserServiceTest {
     public void invite() {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testUser));
         List<Long> invitations = testUser.getInvitations();
-        invitations.add(1l);
+        invitations.add(1L);
 
-        userService.invite(1l, 1l);
+        userService.invite(1L, 1L);
         assertEquals(testUser.getInvitations(), invitations);
     }
 
@@ -245,8 +251,7 @@ public class UserServiceTest {
         userUpdateDTO.setName("updateName");
         userUpdateDTO.setCountry("updateCountry");
         userUpdateDTO.setGender('f');
-        Date date = new Date();
-        userUpdateDTO.setBirthDay(date);
+        userUpdateDTO.setBirthDay(new Date());
         userUpdateDTO.setImage("lion");
 
         userService.updateUser(1L, userUpdateDTO);

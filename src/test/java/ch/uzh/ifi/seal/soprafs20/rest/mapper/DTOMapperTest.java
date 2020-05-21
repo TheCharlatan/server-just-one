@@ -36,7 +36,7 @@ public class DTOMapperTest {
         userPostDTO.setPassword("password");
 		userPostDTO.setName("name");
 		userPostDTO.setCountry("Burkina Faso");
-		userPostDTO.setBirthday(new Date(2017));
+		userPostDTO.setBirthDay(new Date(2017));
 		userPostDTO.setGender('f');
 		userPostDTO.setImage("image");
 
@@ -48,7 +48,7 @@ public class DTOMapperTest {
         assertEquals(userPostDTO.getPassword(), user.getPassword());
         assertEquals(userPostDTO.getName(), user.getName());
         assertEquals(userPostDTO.getCountry(), user.getCountry());
-        assertEquals(userPostDTO.getBirthday(), user.getBirthDay());
+        assertEquals(userPostDTO.getBirthDay(), user.getBirthDay());
         assertEquals(userPostDTO.getGender(), user.getGender());
         assertEquals(userPostDTO.getImage(), user.getImage());
     }
