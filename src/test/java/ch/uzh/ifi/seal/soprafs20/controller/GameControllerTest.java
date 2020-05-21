@@ -134,6 +134,26 @@ public class GameControllerTest {
             .andExpect(status().isOk());
     }
 
+    @Test
+    public void getStats() throws Exception {
+        MockHttpServletRequestBuilder getRequest = get("/game/stat/1")
+            .header("X-Auth-Token", "supersecrettokenvalue");
+
+        mockMvc.perform(getRequest)
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void acceptWord() throws Exception {
+        MockHttpServletRequestBuilder putRequest = put("/game/1/accept")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(asJsonString(1))
+            .header("X-Auth-Token","supersecrettokenvalue");
+
+        mockMvc.perform(putRequest)
+            .andExpect(status().isAccepted());
+    }
+
     /**
      * Helper Method to convert gamePostDTO into a JSON string such that the input can be processed
      * Input will look like this: {"name": "Test Game", "gamename": "testGamename"}
