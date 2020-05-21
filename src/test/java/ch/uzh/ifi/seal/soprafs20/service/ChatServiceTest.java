@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatMessageDTO;
 import ch.uzh.ifi.seal.soprafs20.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.Optional;
 
@@ -106,6 +108,18 @@ public class ChatServiceTest {
         chatMessage.setMessage("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         assertThrows(ServiceException.class, ()->chatService.addChatMessage(1l, chatMessage));
     }
+
+	@Test
+	public void chatPolSubscribe_exception() {
+		assertThrows(NotFoundException.class, ()->chatService.subscribe(1L));
+	}
+
+	@Test
+	public void chatPollGetUpdate_exception() {
+        DeferredResult<List<ChatMessageDTO>> result = new DeferredResult<>();
+		assertThrows(NotFoundException.class, ()->chatService.pollGetUpdate(result ,1L));
+	}
+
 
     @Test
     public void chatEntity_toString_success() {
