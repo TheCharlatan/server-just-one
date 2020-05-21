@@ -68,12 +68,6 @@ public class LobbyService {
         return newLobby.getId();
     }
 
-    public void updateStatusOfLobby(long id, int status){
-        Lobby lobby = getLobby(id);
-        lobby.setStatus(status);
-        saveOrUpdate(lobby);
-    }
-
     public void saveOrUpdate(Lobby updateLobby){
         lobbyRepository.save(updateLobby);
         lobbyRepository.flush();
@@ -138,6 +132,7 @@ public class LobbyService {
 
     public void addPlayerToLobby(long id, long userId){
         Lobby lobby = getLobby(id);
+        User user;
 
         if(lobby.getStatus()==1){
             throw new LobbyException("Game is in progress. You can't join lobby in the middle of the game. Please try later");
@@ -145,10 +140,22 @@ public class LobbyService {
 
         //Checking if the user exists before adding the user to lobby
         try {
-            userRepository.findById(userId);
-        } catch (Exception e) {
+            Optional<User> optionalUser =  userRepository.findById(userId);
+            user = optionalUser.get();
+        }
+        catch (Exception e) {
             throw new LobbyException(String.format("User with id: %d doesn't exist", userId));
         }
+
+        //Player should be unique in the lobby
+        if(user.getLobbyId() == id){
+            throw new LobbyException("Player already exists in the lobby");
+        }
+
+        if(user.getLobbyId()!=-1){
+            throw new LobbyException(String.format("User with username %s is already added to different lobby.",user.getUsername()));
+        }
+
         String baseErrorMessage = "The lobby cannot have more than 7 player. Please join different lobby";
 
         //Size of lobby is limited to maximum of 7 players.
@@ -156,11 +163,10 @@ public class LobbyService {
             throw new LobbyException(baseErrorMessage);
         }
 
-        //Player should be unique in the lobby
-        if(lobby.getPlayerIds().contains(userId)){
-            baseErrorMessage = "Player already exists in the lobby";
-            throw new LobbyException(baseErrorMessage);
-        }
+        user.setLobbyId(id);
+        userRepository.save(user);
+        userRepository.flush();
+
         lobby.getPlayerIds().add(userId);
         saveOrUpdate(lobby);
     }
