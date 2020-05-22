@@ -411,15 +411,15 @@ public class GameService {
         if(elapsedSeconds>35){
             clues.add("REJECTED");
         }
+        else if(word.equalsIgnoreCase(game.getWords().get(game.getWordIndex()))){
+            clues.add("REJECTED");
+        }
         else if (!wordChecker.checkEnglishWord(word) && !isNumeric(word) ) {
                 //Need to add REJECTED to the list in order to check if all the clues have been received or not.
                 //So removing the exception statement.
                 clues.add("REJECTED");
         }
         else if(stemCheck.checkStemMatch(word,game.getWords().get(game.getWordIndex())) && !isNumeric(word)) {
-            clues.add("REJECTED");
-        }
-        else if(word.equalsIgnoreCase(game.getWords().get(game.getWordIndex()))){
             clues.add("REJECTED");
         }
         else {

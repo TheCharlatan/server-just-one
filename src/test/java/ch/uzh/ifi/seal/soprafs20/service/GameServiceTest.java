@@ -607,6 +607,8 @@ public class GameServiceTest {
     public void englishWordCheckInvalid(){
         testGame.setTimestamp(Instant.now().getEpochSecond()-15);
         ArrayList<String> clues =  new ArrayList<>();
+        testGame.setWords(Arrays.asList("break","making","split","test","word"));
+        testGame.setWordIndex(0);
         clues.add("REJECTED");
         clues.add("REJECTED");
         clues.add("REJECTED");
