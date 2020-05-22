@@ -55,6 +55,8 @@ public class LobbyServiceTest {
         testUser.setUsername("testUsername");
         testUser.setPassword("12345");
         testUser.setStatus(UserStatus.ONLINE);
+        testUser.setLobbyId(-1);
+
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
@@ -189,6 +191,8 @@ public class LobbyServiceTest {
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
         lobbyService.createLobby(lobbyTest);
 
+        testUser.setLobbyId(-1L);
+
         Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
         Mockito.when(userRepository.findById(2L)).thenReturn(java.util.Optional.ofNullable(testUser));
         Mockito.when(lobbyRepository.findById(1L)).thenReturn(Optional.ofNullable(lobbyTest));
@@ -218,6 +222,22 @@ public class LobbyServiceTest {
         Long[] longList = new Long[]{2L,3L,4L,5L,6L,7L};
         Collections.addAll(playerList,longList);
         lobbyTest.setPlayerIds(playerList);
+        Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
+        lobbyService.createLobby(lobbyTest);
+
+        Mockito.when(lobbyRepository.getOne(anyLong())).thenReturn(lobbyTest);
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(testUser));
+        Mockito.when(lobbyRepository.save(Mockito.any(Lobby.class))).thenReturn(lobbyTest);
+        assertThrows(LobbyException.class,()->lobbyService.addPlayerToLobby(1L,8L));
+    }
+
+    @Test
+    public void addPlayerToLobbyWhenAlreadyPresentInAnotherLobby(){
+        List<Long> playerList  = new ArrayList<>();
+        Long[] longList = new Long[]{2L,3L};
+        Collections.addAll(playerList,longList);
+        lobbyTest.setPlayerIds(playerList);
+        testUser.setLobbyId(3L);
         Mockito.when(userRepository.getOne(Mockito.any())).thenReturn(testUser);
         lobbyService.createLobby(lobbyTest);
 

@@ -64,7 +64,7 @@ public class Game implements Serializable {
     private Map<Long,Integer> score = new HashMap<>();
 
     @Column
-    private LocalTime timestamp;
+    private long timestamp;
 
     @Column
     private int wordsGuessedCorrect;
@@ -209,11 +209,11 @@ public class Game implements Serializable {
         this.clues = clues;
     }
 
-    public LocalTime getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalTime timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

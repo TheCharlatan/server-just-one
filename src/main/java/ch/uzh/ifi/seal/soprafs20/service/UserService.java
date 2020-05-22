@@ -47,7 +47,7 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setUsername(newUser.getUsername().toLowerCase());
         checkIfUserExists(newUser);
-
+        newUser.setLobbyId(-1);
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setCreationDate(new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
