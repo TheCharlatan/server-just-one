@@ -139,11 +139,10 @@ public class LobbyService {
         }
 
         //Checking if the user exists before adding the user to lobby
-        try {
-            Optional<User> optionalUser =  userRepository.findById(userId);
+        Optional<User> optionalUser =  userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
             user = optionalUser.get();
-        }
-        catch (Exception e) {
+        } else {
             throw new LobbyException(String.format("User with id: %d doesn't exist", userId));
         }
 

@@ -79,7 +79,12 @@ public class ChatPollWorker implements Runnable {
     private Chat getExistingChat(long id) {
         Optional<Chat> optionalChat = chatRepository.findById(id);
         if (!optionalChat.isPresent()) {
-            subscriptions.remove(id);
+            Iterator<Pair<Long, Chat>> iter = subscriptions.iterator();
+            while (iter.hasNext()) {
+                if (iter.next().x.equals(id)) {
+                    iter.remove();
+                }
+            }
             return new Chat();
         }
         return optionalChat.get();
@@ -101,6 +106,7 @@ public class ChatPollWorker implements Runnable {
                     }
                 }
              } catch (InterruptedException e) {
+                 Thread.currentThread().interrupt();
                  throw new ServiceException("Cannot get latest update. ");
              }
         }
