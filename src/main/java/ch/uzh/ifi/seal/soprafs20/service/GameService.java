@@ -135,6 +135,10 @@ public class GameService {
     public void chooseWord(long gameId, int wordIndex){
         Game game = getExistingGame(gameId);
 
+        if (!game.getGameStatus().equals(GameStatus.AWAITING_INDEX)) {
+            throw new ServiceException("The game cannot choose words in this state");
+        }
+
         if(wordIndex>5){
             throw new ServiceException("Please enter the valid choices");
         }
@@ -175,9 +179,14 @@ public class GameService {
     public void rejectWord(long id){
         Game game = getExistingGame(id);
 
+        if (!game.getGameStatus().equals(GameStatus.ACCEPT_REJECT)) {
+            throw new ServiceException("The game cannot reject words in this state");
+        }
+
         long clueTime = game.getTimestamp();
         long nowTime = Instant.now().getEpochSecond();
         long elapsedSeconds = nowTime-clueTime;
+
         if(elapsedSeconds>30){
             throw new ServiceException("Cannot reject word after 30 seconds");
         }
@@ -201,6 +210,11 @@ public class GameService {
      */
     public void acceptWord(long gameId, long userId) {
         Game game = getExistingGame(gameId);
+
+        if (!game.getGameStatus().equals(GameStatus.ACCEPT_REJECT)) {
+            throw new ServiceException("The game cannot accept words in this state");
+        }
+
         List<Long> userAccepted = game.getCountAccept();
         userAccepted.add(userId);
         game.setCountAccept(userAccepted);
@@ -237,9 +251,13 @@ public class GameService {
 
     // checks if the mysteryWord matches with the guess
     public GamePutDTO checkGuess(GamePutDTO gamePutDTO, long id) {
+        Game game = getExistingGame(id);
+        if(!game.getGameStatus().equals(GameStatus.AWAITING_GUESS)){
+            throw new ServiceException("The game cannot check guesses in this state");
+        }
+
         int index = gamePutDTO.getWordIndex();
         String guess = gamePutDTO.getGuess();
-        Game game = getExistingGame(id);
         String mysteryWord = game.getWords().get(index);
 
         // check if guess took too long
@@ -405,6 +423,10 @@ public class GameService {
     public void submitWord(long id, String word) {
 
         Game game = getExistingGame(id);
+        if (!game.getGameStatus().equals(GameStatus.AWAITING_CLUES)) {
+            throw new ServiceException("The game cannot check clues in this state");
+        }
+
         long elapsedSeconds = checkTimeForClue(game);
         List<String> clues = game.getClues();
 
