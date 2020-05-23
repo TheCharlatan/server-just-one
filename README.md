@@ -150,3 +150,8 @@ For a list of contributors see the [github
 contributors](https://github.com/SOPRA-2020/server-just-one/graphs/contributors).
 The Just One game was designed by Ludovic Roudy and Bruno Sautter and was
 published by Repos Production.
+
+## License
+
+The project is licensed under the MIT license. For more, see [LICENSE](LICENSE).
+
