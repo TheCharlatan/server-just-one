@@ -482,14 +482,14 @@ public class GameServiceTest {
         gameService.submitWord(1L,"word");
         assert(testGame.getClues().size() >= 1);
         for (String clue: testGame.getClues()) {
-            assertEquals("word", clue);
+            assertEquals("WORD", clue);
         }
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
         gameService.submitWord(1L,"sword");
         assert(testGame.getClues().size() >= 2);
 
-        assertEquals("sword", testGame.getClues().get(1));
+        assertEquals("SWORD", testGame.getClues().get(1));
     }
 
     @Test
@@ -526,7 +526,7 @@ public class GameServiceTest {
         gameService.submitWord(1L,"word");
         assert(testGame.getClues().size() >= 1);
         for (String clue: testGame.getClues()) {
-            assertEquals("word", clue);
+            assertEquals("WORD", clue);
         }
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
@@ -539,7 +539,7 @@ public class GameServiceTest {
         assert(testGame.getClues().size() >= 3);
 
         assertEquals("REJECTED", testGame.getClues().get(0));
-        assertEquals("sword",testGame.getClues().get(2));
+        assertEquals("SWORD",testGame.getClues().get(2));
     }
 
     @Test
@@ -574,7 +574,7 @@ public class GameServiceTest {
         gameService.submitWord(1L,"word");
         assert(testGame.getClues().size() >= 1);
         for (String clue: testGame.getClues()) {
-            assertEquals("word", clue);
+            assertEquals("WORD", clue);
         }
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(Optional.of(testGame));
         Mockito.when(wordChecker.checkEnglishWord(Mockito.any())).thenReturn(true);
@@ -586,9 +586,9 @@ public class GameServiceTest {
         gameService.submitWord(1L,"sword");
         assert(testGame.getClues().size() >= 3);
 
-        assertEquals("word", testGame.getClues().get(0));
-        assertEquals("words",testGame.getClues().get(1));
-        assertEquals("sword",testGame.getClues().get(2));
+        assertEquals("WORD", testGame.getClues().get(0));
+        assertEquals("WORDS",testGame.getClues().get(1));
+        assertEquals("SWORD",testGame.getClues().get(2));
     }
 
 

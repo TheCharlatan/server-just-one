@@ -265,8 +265,10 @@ public class GameService {
         long guessTime = game.getTimestamp();
         long nowTime = Instant.now().getEpochSecond();
         long elapsedSeconds = nowTime-guessTime;
+
         if(elapsedSeconds>30){
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
+
             returnedDTO.setGuessCorrect("timeout");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
@@ -326,6 +328,10 @@ public class GameService {
         updateUserScore(game.getActivePlayerId(), scoreForRound);
 
         //Adding the score of this round to scoreboard
+        if(game.getScore().containsKey(game.getActivePlayerId())) {
+            int scoreOfPlayer = game.getScore().get(game.getActivePlayerId());
+            scoreForRound += scoreOfPlayer;
+        }
         game.getScore().put(game.getActivePlayerId(),scoreForRound);
 
         // select the next player
@@ -445,11 +451,11 @@ public class GameService {
             clues.add("REJECTED");
         }
         else {
-                clues.add(word);
+                clues.add(word.toUpperCase());
+                game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         }
         game.setClues(clues);
 
-        game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);
