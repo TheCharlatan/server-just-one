@@ -247,8 +247,10 @@ public class GameService {
         long guessTime = game.getTimestamp();
         long nowTime = Instant.now().getEpochSecond();
         long elapsedSeconds = nowTime-guessTime;
+
         if(elapsedSeconds>30){
             game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds)-50);
+
             returnedDTO.setGuessCorrect("timeout");
             //Handle according to a wrong guess -> this card and the next card is put away
             game.setCardStackCount(game.getCardStackCount() - 2);
@@ -308,6 +310,10 @@ public class GameService {
         updateUserScore(game.getActivePlayerId(), scoreForRound);
 
         //Adding the score of this round to scoreboard
+        if(game.getScore().containsKey(game.getActivePlayerId())) {
+            int scoreOfPlayer = game.getScore().get(game.getActivePlayerId());
+            scoreForRound += scoreOfPlayer;
+        }
         game.getScore().put(game.getActivePlayerId(),scoreForRound);
 
         // select the next player
@@ -387,8 +393,6 @@ public class GameService {
     public void checkDuplicateClue(List<String> clueList){
         List<String> duplicateList = new ArrayList<>();
 
-        log.info("received clue -> "+clueList.toString());
-
         List<String> emptyList = new ArrayList<>();
         for(String tempString: clueList){
             if(emptyList.contains(tempString)){
@@ -402,7 +406,6 @@ public class GameService {
         for(String duplicateString: duplicateList){
             Collections.replaceAll(clueList,duplicateString,"REJECTED");
         }
-        log.info("updated clue->"+clueList.toString());
     }
 
     public void submitWord(long id, String word) {
@@ -427,6 +430,7 @@ public class GameService {
         }
         else {
                 clues.add(word.toUpperCase());
+                game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         }
         game.setClues(clues);
 
@@ -434,7 +438,6 @@ public class GameService {
             throw new ServiceException("Too many clues submitted already");
         }
 
-        game.setRoundScore(game.getRoundScore()+(100/(int)elapsedSeconds));
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);
@@ -453,10 +456,8 @@ public class GameService {
 
         if (game.getClues().size() >= maxNumClues) {
 
-            log.info("clue before duplicate check->"+game.getClues());
             //Checking if duplicate clues were entered.
             checkDuplicateClue(game.getClues());
-            log.info("clue after duplicate check->"+game.getClues());
 
             /*
             Checking if all the entered clue were invalid.
