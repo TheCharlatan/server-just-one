@@ -456,10 +456,6 @@ public class GameService {
         }
         game.setClues(clues);
 
-        if (clues.size() > game.getPlayerIds().size()-1) {
-            throw new ServiceException("Too many clues submitted already");
-        }
-
         if (game.getClues().size() <= game.getPlayerIds().size() - 1) {
             game.setGameStatus(GameStatus.AWAITING_CLUES);
             game.setCardStatus(CardStatus.AWAITING_CLUES);
