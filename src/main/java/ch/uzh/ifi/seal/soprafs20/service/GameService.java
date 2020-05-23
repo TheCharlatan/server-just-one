@@ -387,6 +387,8 @@ public class GameService {
     public void checkDuplicateClue(List<String> clueList){
         List<String> duplicateList = new ArrayList<>();
 
+        log.info("received clue -> "+clueList.toString());
+
         List<String> emptyList = new ArrayList<>();
         for(String tempString: clueList){
             if(emptyList.contains(tempString)){
@@ -400,6 +402,7 @@ public class GameService {
         for(String duplicateString: duplicateList){
             Collections.replaceAll(clueList,duplicateString,"REJECTED");
         }
+        log.info("updated clue->"+clueList.toString());
     }
 
     public void submitWord(long id, String word) {
@@ -423,7 +426,7 @@ public class GameService {
             clues.add("REJECTED");
         }
         else {
-                clues.add(word);
+                clues.add(word.toUpperCase());
         }
         game.setClues(clues);
 
@@ -450,8 +453,10 @@ public class GameService {
 
         if (game.getClues().size() >= maxNumClues) {
 
+            log.info("clue before duplicate check->"+game.getClues());
             //Checking if duplicate clues were entered.
             checkDuplicateClue(game.getClues());
+            log.info("clue after duplicate check->"+game.getClues());
 
             /*
             Checking if all the entered clue were invalid.
